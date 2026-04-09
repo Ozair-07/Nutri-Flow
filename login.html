@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriFlow – Login / Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --g-dark:  #2f5d50;
+      --g-mid:   #3d6e61;
+      --g-light: #4f7c6e;
+      --g-pale:  #e8f2ef;
+      --g-xpale: #f3f9f7;
+      --accent:  #c8963a;
+      --txt:     #1a2e28;
+      --txt-mid: #3d5a52;
+      --txt-lt:  #6b8c84;
+      --err:     #dc2626;
+      --suc:     #059669;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--g-xpale);
+      color: var(--txt);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SCREEN MANAGER ─────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: flex; }
+
+    /* ── BACK / NAV BAR ─────────────────────────────── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .9rem 2rem;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(47,93,80,.08);
+      box-shadow: 0 2px 12px rgba(47,93,80,.06);
+    }
+    .topbar-logo { display: flex; align-items: center; gap: .5rem; text-decoration: none; }
+    .topbar-logo img { height: 38px; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .83rem; font-weight: 600; color: var(--txt-mid);
+      text-decoration: none; cursor: pointer; border: none; background: none;
+      padding: .4rem .9rem; border-radius: 50px;
+      transition: background .2s, color .2s;
+    }
+    .back-btn:hover { background: var(--g-pale); color: var(--g-dark); }
+
+    /* ── ROLE PICKER ────────────────────────────────── */
+    #screenPicker {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 1.5rem 3rem;
+      background: linear-gradient(150deg, var(--g-xpale) 0%, #e0ece8 100%);
+    }
+    .picker-header { text-align: center; margin-bottom: 3rem; }
+    .picker-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; color: var(--txt); line-height: 1.2;
+      margin-bottom: .7rem;
+    }
+    .picker-sub { font-size: .95rem; color: var(--txt-lt); font-weight: 300; }
+
+    .picker-cards {
+      display: flex; flex-wrap: wrap; gap: 1.5rem;
+      justify-content: center; max-width: 720px;
+    }
+    .picker-card {
+      flex: 1; min-width: 280px; max-width: 320px;
+      background: #fff; border: 2px solid #d4e8e2;
+      border-radius: 20px; padding: 2.8rem 2.2rem;
+      text-align: center; cursor: pointer;
+      transition: transform .28s, box-shadow .28s, border-color .28s;
+      box-shadow: 0 4px 20px rgba(47,93,80,.08);
+      position: relative; overflow: hidden;
+    }
+    .picker-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      border-radius: 20px 20px 0 0;
+    }
+    .picker-card-r::before { background: linear-gradient(90deg, var(--g-dark), #86efac); }
+    .picker-card-n::before { background: linear-gradient(90deg, var(--accent), #fbbf24); }
+    .picker-card:hover { transform: translateY(-8px); box-shadow: 0 16px 48px rgba(47,93,80,.18); border-color: var(--g-light); }
+    .picker-icon { font-size: 3.8rem; margin-bottom: 1.2rem; display: block; transition: transform .3s; }
+    .picker-card:hover .picker-icon { transform: scale(1.1) rotate(-3deg); }
+    .picker-card-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--txt); margin-bottom: .5rem; }
+    .picker-card-desc { font-size: .84rem; color: var(--txt-lt); line-height: 1.65; margin-bottom: 1.8rem; }
+    .picker-card-btn {
+      display: inline-block; padding: .65rem 1.8rem; border-radius: 50px;
+      font-size: .85rem; font-weight: 700;
+      transition: all .2s;
+    }
+    .btn-r { background: var(--g-dark); color: #fff; }
+    .btn-r:hover { background: var(--g-mid); }
+    .btn-n { background: var(--accent); color: #fff; }
+    .btn-n:hover { background: #b5832f; }
+
+    .picker-bullets { list-style: none; text-align: left; margin: 0 0 1.6rem; }
+    .picker-bullets li { font-size: .8rem; color: var(--txt-mid); margin-bottom: .4rem; display: flex; align-items: flex-start; gap: .5rem; }
+    .picker-bullets li::before { content: '✓'; color: var(--g-dark); font-weight: 800; flex-shrink: 0; }
+
+    /* ── AUTH PANEL (Login + Signup) ────────────────── */
+    #screenRestaurant,
+    #screenNGO {
+      min-height: 100vh;
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    /* Left visual panel */
+    .auth-visual {
+      flex: 0 0 42%;
+      position: relative;
+      overflow: hidden;
+      display: none;
+    }
+    @media (min-width: 960px) { .auth-visual { display: block; } }
+    .auth-visual-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .auth-visual-ov {
+      position: absolute; inset: 0;
+      background: linear-gradient(155deg, rgba(12,36,28,.92) 0%, rgba(30,70,55,.82) 60%, rgba(47,93,80,.70) 100%);
+    }
+    .auth-visual-content {
+      position: relative; z-index: 2;
+      padding: 3.5rem; height: 100%;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .av-logo img { height: 44px; }
+    .av-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .av-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+      font-weight: 800; color: #fff; line-height: 1.18;
+      margin-bottom: 1rem;
+    }
+    .av-title em { font-style: normal; color: #86efac; }
+    .av-sub { font-size: .9rem; color: rgba(255,255,255,.72); line-height: 1.7; margin-bottom: 2rem; font-weight: 300; }
+    .av-stats { display: flex; gap: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.15); }
+    .av-stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; color: #86efac; }
+    .av-stat-lbl { font-size: .68rem; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .07em; margin-top: .15rem; }
+    .av-img-strip { display: flex; gap: .6rem; margin-top: 2rem; }
+    .av-img-thumb { flex: 1; height: 70px; border-radius: 8px; overflow: hidden; }
+    .av-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .av-footer { color: rgba(255,255,255,.35); font-size: .72rem; }
+
+    /* Right form panel */
+    .auth-form-panel {
+      flex: 1; background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 6rem 2.5rem 3rem; overflow-y: auto;
+      min-height: 100vh;
+    }
+    .auth-form-inner { width: 100%; max-width: 440px; }
+
+    /* Tab toggle login/signup */
+    .auth-tab-bar {
+      display: flex; gap: .3rem;
+      background: var(--g-xpale);
+      padding: .3rem; border-radius: 12px;
+      margin-bottom: 2.2rem;
+    }
+    .auth-tab {
+      flex: 1; padding: .65rem 1rem; border-radius: 9px;
+      font-size: .88rem; font-weight: 600; color: var(--txt-mid);
+      border: none; background: transparent; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all .2s;
+      text-align: center;
+    }
+    .auth-tab.active {
+      background: #fff; color: var(--g-dark);
+      box-shadow: 0 2px 10px rgba(47,93,80,.12);
+    }
+
+    /* Form panes */
+    .auth-pane { display: none; }
+    .auth-pane.active { display: block; }
+
+    .auth-heading { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 800; color: var(--txt); margin-bottom: .35rem; }
+    .auth-sub { font-size: .85rem; color: var(--txt-lt); margin-bottom: 1.8rem; font-weight: 300; }
+
+    /* Form elements */
+    .f-group { margin-bottom: 1.1rem; }
+    .f-label {
+      display: block; font-size: .75rem; font-weight: 700;
+      color: var(--txt-mid); margin-bottom: .4rem;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .f-input, .f-select {
+      width: 100%; padding: .78rem 1rem;
+      border: 1.5px solid #d1e3dd; border-radius: 10px;
+      font-size: .9rem; font-family: 'Poppins', sans-serif;
+      color: var(--txt); background: #fff;
+      transition: border-color .2s, box-shadow .2s; outline: none;
+    }
+    .f-input:focus, .f-select:focus {
+      border-color: var(--g-dark);
+      box-shadow: 0 0 0 3px rgba(47,93,80,.1);
+    }
+    .f-input.error { border-color: var(--err); box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+    .f-err { font-size: .72rem; color: var(--err); margin-top: .3rem; display: none; }
+    .f-err.show { display: block; }
+
+    /* Password wrapper */
+    .pw-wrap { position: relative; }
+    .pw-wrap .f-input { padding-right: 3rem; }
+    .pw-toggle {
+      position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 1rem;
+      color: var(--txt-lt); transition: color .2s; padding: 0; line-height: 1;
+    }
+    .pw-toggle:hover { color: var(--g-dark); }
+
+    .f-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 500px) { .f-grid-2 { grid-template-columns: 1fr; } }
+
+    /* Submit button */
+    .btn-submit-auth {
+      width: 100%; padding: .9rem;
+      background: var(--g-dark); color: #fff;
+      border: none; border-radius: 50px; cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: .97rem; font-weight: 700;
+      transition: all .25s; margin-top: .5rem;
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+    }
+    .btn-submit-auth:hover { background: var(--g-mid); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(47,93,80,.28); }
+    .btn-submit-auth:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .btn-submit-auth.accent-btn { background: var(--accent); }
+    .btn-submit-auth.accent-btn:hover { background: #b5832f; }
+
+    /* Divider */
+    .auth-divider { display: flex; align-items: center; gap: .8rem; margin: 1.2rem 0; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #e5ede9; }
+    .auth-divider span { font-size: .75rem; color: var(--txt-lt); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: #fff; border-radius: 12px; padding: .9rem 1.4rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,.15); font-size: .87rem; font-weight: 600;
+      z-index: 200; display: flex; align-items: center; gap: .6rem;
+      transform: translateY(20px); opacity: 0; transition: all .3s;
+      max-width: 320px; pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-left: 4px solid var(--suc); color: var(--suc); }
+    .toast.error   { border-left: 4px solid var(--err); color: var(--err); }
+
+    /* Alert boxes */
+    .alert { border-radius: 10px; padding: .9rem 1rem; font-size: .84rem; margin-bottom: 1.2rem; display: none; align-items: flex-start; gap: .5rem; line-height: 1.5; }
+    .alert.show { display: flex; }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    /* Hint text */
+    .f-hint { font-size: .72rem; color: var(--txt-lt); margin-top: .3rem; }
+
+    /* Terms checkbox */
+    .checkbox-row { display: flex; align-items: flex-start; gap: .7rem; margin: .5rem 0; }
+    .checkbox-row input[type="checkbox"] { margin-top: .15rem; width: 16px; height: 16px; accent-color: var(--g-dark); flex-shrink: 0; cursor: pointer; }
+    .checkbox-row label { font-size: .8rem; color: var(--txt-mid); line-height: 1.5; cursor: pointer; }
+    .checkbox-row a { color: var(--g-dark); text-decoration: underline; }
+
+    /* Strength bar */
+    .strength-bar { height: 3px; background: #e5e7eb; border-radius: 2px; margin-top: .4rem; overflow: hidden; }
+    .strength-fill { height: 100%; width: 0; border-radius: 2px; transition: width .3s, background .3s; }
+
+    /* Section divider for signup */
+    .signup-section-head {
+      font-size: .72rem; font-weight: 700; color: var(--g-dark);
+      text-transform: uppercase; letter-spacing: .1em;
+      margin: 1.4rem 0 .8rem; padding-bottom: .5rem;
+      border-bottom: 1px solid var(--g-pale);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     TOPBAR
+════════════════════════════════════════════════ -->
+<div class="topbar">
+  <a href="index.html" class="topbar-logo">
+    <img src="assets/logo.png" alt="NutriFlow" />
+  </a>
+  <button class="back-btn" id="topBackBtn" onclick="goBack()">
+    ← Back
+  </button>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN 1 – ROLE PICKER
+════════════════════════════════════════════════ -->
+<div class="screen active" id="screenPicker">
+
+  <div class="picker-header">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--txt-lt);margin-bottom:.6rem;">
+      Welcome to NutriFlow
+    </div>
+    <h1 class="picker-title">Who are you joining as?</h1>
+    <p class="picker-sub">Choose your role to get started — it's completely free.</p>
+  </div>
+
+  <div class="picker-cards">
+
+    <!-- Restaurant Card -->
+    <div class="picker-card picker-card-r" onclick="showAuthScreen('Restaurant')">
+      <span class="picker-icon">🍽️</span>
+      <div class="picker-card-title">Restaurant / Food Business</div>
+      <p class="picker-card-desc">
+        Share surplus food from your kitchen with nearby NGOs and track
+        the real-world impact of every donation.
+      </p>
+      <ul class="picker-bullets">
+        <li>List surplus food in under 2 minutes</li>
+        <li>Get notified when NGOs accept</li>
+        <li>Track meals saved in real time</li>
+        <li>Free forever — no commissions</li>
+      </ul>
+      <span class="picker-card-btn btn-r">Continue as Restaurant →</span>
+    </div>
+
+    <!-- NGO Card -->
+    <div class="picker-card picker-card-n" onclick="showAuthScreen('NGO')">
+      <span class="picker-icon">🤝</span>
+      <div class="picker-card-title">NGO / Community Kitchen</div>
+      <p class="picker-card-desc">
+        Find available surplus food near your location, accept pickups, and
+        distribute meals to communities in need.
+      </p>
+      <ul class="picker-bullets">
+        <li>Browse food listings by distance</li>
+        <li>Accept pickups with one tap</li>
+        <li>Manage entire pickup workflow</li>
+        <li>Verified NGO badge on your profile</li>
+      </ul>
+      <span class="picker-card-btn btn-n">Continue as NGO →</span>
+    </div>
+
+  </div>
+
+  <p style="margin-top:2.5rem;font-size:.78rem;color:var(--txt-lt);text-align:center;">
+    Already have an account? Select your role above to log in.
+  </p>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN 2 – RESTAURANT AUTH
+════════════════════════════════════════════════ -->
+<div class="screen" id="screenRestaurant">
+
+  <!-- Visual Left -->
+  <div class="auth-visual">
+    <div class="auth-visual-bg" style="background-image:url('assets/gallery-4.webp');"></div>
+    <div class="auth-visual-ov"></div>
+    <div class="auth-visual-content">
+      <div class="av-logo"><img src="assets/logo.png" alt="NutriFlow" /></div>
+      <div class="av-body">
+        <h2 class="av-title">Turn your<br/><em>surplus food</em><br/>into smiles</h2>
+        <p class="av-sub">
+          Every day restaurants discard tonnes of perfectly edible food while children
+          go hungry nearby. NutriFlow fixes this — instantly, for free.
+        </p>
+        <div class="av-stats">
+          <div><div class="av-stat-num">500+</div><div class="av-stat-lbl">Meals Saved</div></div>
+          <div><div class="av-stat-num">50+</div><div class="av-stat-lbl">Restaurants</div></div>
+          <div><div class="av-stat-num">8</div><div class="av-stat-lbl">Cities</div></div>
+        </div>
+        <div class="av-img-strip">
+          <div class="av-img-thumb"><img src="assets/gallery-3.webp" alt="" /></div>
+          <div class="av-img-thumb"><img src="assets/gallery-1.webp" alt="" /></div>
+          <div class="av-img-thumb"><img src="assets/gallery-5.png" alt="" /></div>
+        </div>
+      </div>
+      <div class="av-footer">🔒 &nbsp;Your data is secure and never shared</div>
+    </div>
+  </div>
+
+  <!-- Form Right -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+
+      <!-- Role badge -->
+      <div style="display:inline-flex;align-items:center;gap:.5rem;background:var(--g-pale);color:var(--g-dark);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:50px;margin-bottom:1.5rem;">
+        🍽️ &nbsp;Restaurant Portal
+      </div>
+
+      <!-- Tab bar -->
+      <div class="auth-tab-bar">
+        <button class="auth-tab active" id="rTabLogin"  onclick="switchTab('r','login')">Log In</button>
+        <button class="auth-tab"        id="rTabSignup" onclick="switchTab('r','signup')">Create Account</button>
+      </div>
+
+      <!-- ── LOGIN PANE ── -->
+      <div class="auth-pane active" id="rPaneLogin">
+        <h2 class="auth-heading">Welcome back 👋</h2>
+        <p class="auth-sub">Log in to your restaurant account to manage listings</p>
+
+        <div class="alert alert-error" id="rLoginAlert">
+          <span>⚠️</span><span id="rLoginAlertMsg"></span>
+        </div>
+        <div class="alert alert-success" id="rLoginSuccess">
+          <span>✅</span><span>Login successful! Redirecting…</span>
+        </div>
+
+        <form id="rLoginForm" novalidate>
+          <div class="f-group">
+            <label class="f-label" for="rLEmail">Email Address</label>
+            <input type="email" id="rLEmail" class="f-input" placeholder="you@restaurant.com" autocomplete="email" />
+            <div class="f-err" id="rLEmailErr">Please enter a valid email address</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="rLPass">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="rLPass" class="f-input" placeholder="Enter your password" autocomplete="current-password" />
+              <button type="button" class="pw-toggle" onclick="togglePw('rLPass',this)">👁️</button>
+            </div>
+            <div class="f-err" id="rLPassErr">Password is required</div>
+          </div>
+
+          <div style="text-align:right;margin-bottom:1rem;">
+            <a href="#" style="font-size:.78rem;color:var(--g-dark);font-weight:600;text-decoration:none;">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-submit-auth">
+            <span id="rLoginBtnTxt">Log In to Dashboard</span>
+            <span id="rLoginSpinner" style="display:none;">⏳</span>
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>New here?</span></div>
+        <button onclick="switchTab('r','signup')" style="width:100%;padding:.8rem;border-radius:50px;border:2px solid var(--g-dark);background:transparent;color:var(--g-dark);font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='var(--g-pale)'" onmouseout="this.style.background='transparent'">
+          Create a Restaurant Account →
+        </button>
+      </div>
+
+      <!-- ── SIGNUP PANE ── -->
+      <div class="auth-pane" id="rPaneSignup">
+        <h2 class="auth-heading">Join NutriFlow 🌿</h2>
+        <p class="auth-sub">Create your restaurant account — free, takes 1 minute</p>
+
+        <div class="alert alert-error" id="rSignupAlert">
+          <span>⚠️</span><span id="rSignupAlertMsg"></span>
+        </div>
+        <div class="alert alert-success" id="rSignupSuccess">
+          <span>✅</span><span>Account created! Redirecting to your dashboard…</span>
+        </div>
+
+        <form id="rSignupForm" novalidate>
+
+          <div class="signup-section-head">🏪 Restaurant Details</div>
+
+          <div class="f-group">
+            <label class="f-label" for="rSName">Restaurant / Business Name *</label>
+            <input type="text" id="rSName" class="f-input" placeholder="e.g., Green Garden Restaurant" />
+            <div class="f-err" id="rSNameErr">Restaurant name is required</div>
+          </div>
+
+          <div class="f-grid-2">
+            <div class="f-group">
+              <label class="f-label" for="rSType">Type *</label>
+              <select id="rSType" class="f-select">
+                <option value="">Select type…</option>
+                <option>Restaurant</option>
+                <option>Cafe / Bakery</option>
+                <option>Catering Service</option>
+                <option>Hotel / Resort</option>
+                <option>Cloud Kitchen</option>
+                <option>Food Truck</option>
+                <option>Canteen / Mess</option>
+                <option>Other</option>
+              </select>
+              <div class="f-err" id="rSTypeErr">Please select a business type</div>
+            </div>
+            <div class="f-group">
+              <label class="f-label" for="rSCity">City *</label>
+              <select id="rSCity" class="f-select">
+                <option value="">Select city…</option>
+                <option>Delhi</option>
+                <option>Mumbai</option>
+                <option>Bangalore</option>
+                <option>Hyderabad</option>
+                <option>Chennai</option>
+                <option>Pune</option>
+                <option>Kolkata</option>
+                <option>Jaipur</option>
+                <option>Other</option>
+              </select>
+              <div class="f-err" id="rSCityErr">Please select a city</div>
+            </div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="rSAddress">Full Address *</label>
+            <input type="text" id="rSAddress" class="f-input" placeholder="Street, Area, Landmark" />
+            <div class="f-err" id="rSAddressErr">Address is required</div>
+          </div>
+
+          <div class="signup-section-head">👤 Owner / Contact Person</div>
+
+          <div class="f-grid-2">
+            <div class="f-group">
+              <label class="f-label" for="rSOwner">Owner / Manager Name *</label>
+              <input type="text" id="rSOwner" class="f-input" placeholder="Full name" />
+              <div class="f-err" id="rSOwnerErr">Owner name is required</div>
+            </div>
+            <div class="f-group">
+              <label class="f-label" for="rSPhone">Phone Number *</label>
+              <input type="tel" id="rSPhone" class="f-input" placeholder="10-digit mobile" maxlength="10" />
+              <div class="f-err" id="rSPhoneErr">Enter a valid 10-digit number</div>
+            </div>
+          </div>
+
+          <div class="signup-section-head">🔐 Account Credentials</div>
+
+          <div class="f-group">
+            <label class="f-label" for="rSEmail">Email Address *</label>
+            <input type="email" id="rSEmail" class="f-input" placeholder="you@restaurant.com" autocomplete="email" />
+            <div class="f-err" id="rSEmailErr">Enter a valid email address</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="rSPass">Password *</label>
+            <div class="pw-wrap">
+              <input type="password" id="rSPass" class="f-input" placeholder="Min. 6 characters" autocomplete="new-password" oninput="checkStrength(this,'rStrengthFill','rStrengthLbl')" />
+              <button type="button" class="pw-toggle" onclick="togglePw('rSPass',this)">👁️</button>
+            </div>
+            <div class="strength-bar"><div class="strength-fill" id="rStrengthFill"></div></div>
+            <div class="f-hint" id="rStrengthLbl"></div>
+            <div class="f-err" id="rSPassErr">Password must be at least 6 characters</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="rSConfirm">Confirm Password *</label>
+            <div class="pw-wrap">
+              <input type="password" id="rSConfirm" class="f-input" placeholder="Repeat password" autocomplete="new-password" />
+              <button type="button" class="pw-toggle" onclick="togglePw('rSConfirm',this)">👁️</button>
+            </div>
+            <div class="f-err" id="rSConfirmErr">Passwords do not match</div>
+          </div>
+
+          <div class="checkbox-row" style="margin-top:.8rem;">
+            <input type="checkbox" id="rTerms" />
+            <label for="rTerms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a> of NutriFlow</label>
+          </div>
+          <div class="f-err" id="rTermsErr" style="margin-bottom:.5rem;">Please accept the terms to continue</div>
+
+          <button type="submit" class="btn-submit-auth" style="margin-top:1rem;">
+            <span id="rSignupBtnTxt">Create Restaurant Account</span>
+            <span id="rSignupSpinner" style="display:none;">⏳</span>
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>Already have an account?</span></div>
+        <button onclick="switchTab('r','login')" style="width:100%;padding:.8rem;border-radius:50px;border:2px solid var(--g-dark);background:transparent;color:var(--g-dark);font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='var(--g-pale)'" onmouseout="this.style.background='transparent'">
+          Log In Instead
+        </button>
+
+        <p style="margin-top:1.2rem;font-size:.75rem;color:var(--txt-lt);text-align:center;line-height:1.6;">
+          By creating an account, you agree that NutriFlow may verify your listing details
+          and that all food listed must meet basic food safety standards.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN 3 – NGO AUTH
+════════════════════════════════════════════════ -->
+<div class="screen" id="screenNGO">
+
+  <!-- Visual Left -->
+  <div class="auth-visual">
+    <div class="auth-visual-bg" style="background-image:url('assets/hero-bg.webp');"></div>
+    <div class="auth-visual-ov" style="background:linear-gradient(155deg,rgba(10,30,22,.93) 0%,rgba(40,80,60,.83) 60%,rgba(50,90,70,.72) 100%);"></div>
+    <div class="auth-visual-content">
+      <div class="av-logo"><img src="assets/logo.png" alt="NutriFlow" /></div>
+      <div class="av-body">
+        <h2 class="av-title">Find food.<br/>Feed <em>communities</em>.<br/>Create impact.</h2>
+        <p class="av-sub">
+          Verified NGOs on NutriFlow get instant access to surplus food listings
+          from restaurants nearby — reducing waste while ending hunger.
+        </p>
+        <div class="av-stats">
+          <div><div class="av-stat-num">30+</div><div class="av-stat-lbl">NGOs Active</div></div>
+          <div><div class="av-stat-num">500+</div><div class="av-stat-lbl">Meals Given</div></div>
+          <div><div class="av-stat-num">8</div><div class="av-stat-lbl">Cities</div></div>
+        </div>
+        <div class="av-img-strip">
+          <div class="av-img-thumb"><img src="assets/gallery-3.webp" alt="" /></div>
+          <div class="av-img-thumb"><img src="assets/gallery-5.png"  alt="" /></div>
+          <div class="av-img-thumb"><img src="assets/gallery-2.webp" alt="" /></div>
+        </div>
+      </div>
+      <div class="av-footer">🔒 &nbsp;NGO credentials verified within 24 hours</div>
+    </div>
+  </div>
+
+  <!-- Form Right -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+
+      <!-- Role badge -->
+      <div style="display:inline-flex;align-items:center;gap:.5rem;background:#fef3c7;color:#92400e;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:50px;margin-bottom:1.5rem;">
+        🤝 &nbsp;NGO Portal
+      </div>
+
+      <!-- Tab bar -->
+      <div class="auth-tab-bar">
+        <button class="auth-tab active" id="nTabLogin"  onclick="switchTab('n','login')">Log In</button>
+        <button class="auth-tab"        id="nTabSignup" onclick="switchTab('n','signup')">Register NGO</button>
+      </div>
+
+      <!-- ── LOGIN PANE ── -->
+      <div class="auth-pane active" id="nPaneLogin">
+        <h2 class="auth-heading">Welcome back 👋</h2>
+        <p class="auth-sub">Log in to your NGO account to find available food</p>
+
+        <div class="alert alert-error" id="nLoginAlert">
+          <span>⚠️</span><span id="nLoginAlertMsg"></span>
+        </div>
+        <div class="alert alert-success" id="nLoginSuccess">
+          <span>✅</span><span>Login successful! Redirecting…</span>
+        </div>
+
+        <form id="nLoginForm" novalidate>
+          <div class="f-group">
+            <label class="f-label" for="nLEmail">Email Address</label>
+            <input type="email" id="nLEmail" class="f-input" placeholder="you@ngo.org" autocomplete="email" />
+            <div class="f-err" id="nLEmailErr">Please enter a valid email address</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="nLPass">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="nLPass" class="f-input" placeholder="Enter your password" autocomplete="current-password" />
+              <button type="button" class="pw-toggle" onclick="togglePw('nLPass',this)">👁️</button>
+            </div>
+            <div class="f-err" id="nLPassErr">Password is required</div>
+          </div>
+
+          <div style="text-align:right;margin-bottom:1rem;">
+            <a href="#" style="font-size:.78rem;color:var(--g-dark);font-weight:600;text-decoration:none;">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-submit-auth accent-btn">
+            <span id="nLoginBtnTxt">Log In to Dashboard</span>
+            <span id="nLoginSpinner" style="display:none;">⏳</span>
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>New here?</span></div>
+        <button onclick="switchTab('n','signup')" style="width:100%;padding:.8rem;border-radius:50px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='#fdf3dc'" onmouseout="this.style.background='transparent'">
+          Register Your NGO →
+        </button>
+      </div>
+
+      <!-- ── SIGNUP PANE ── -->
+      <div class="auth-pane" id="nPaneSignup">
+        <h2 class="auth-heading">Register your NGO 🤝</h2>
+        <p class="auth-sub">Create your account — verified NGOs get a blue badge</p>
+
+        <div class="alert alert-error" id="nSignupAlert">
+          <span>⚠️</span><span id="nSignupAlertMsg"></span>
+        </div>
+        <div class="alert alert-success" id="nSignupSuccess">
+          <span>✅</span><span>Account created! Redirecting to your dashboard…</span>
+        </div>
+
+        <form id="nSignupForm" novalidate>
+
+          <div class="signup-section-head">🏢 NGO Details</div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSName">NGO / Organisation Name *</label>
+            <input type="text" id="nSName" class="f-input" placeholder="e.g., Hope Foundation" />
+            <div class="f-err" id="nSNameErr">NGO name is required</div>
+          </div>
+
+          <div class="f-grid-2">
+            <div class="f-group">
+              <label class="f-label" for="nSType">Organisation Type *</label>
+              <select id="nSType" class="f-select">
+                <option value="">Select…</option>
+                <option>Registered NGO</option>
+                <option>Trust / Society</option>
+                <option>Community Kitchen</option>
+                <option>Food Bank</option>
+                <option>Religious Organisation</option>
+                <option>Welfare Association</option>
+                <option>Other</option>
+              </select>
+              <div class="f-err" id="nSTypeErr">Please select an organisation type</div>
+            </div>
+            <div class="f-group">
+              <label class="f-label" for="nSCity">City *</label>
+              <select id="nSCity" class="f-select">
+                <option value="">Select city…</option>
+                <option>Delhi</option>
+                <option>Mumbai</option>
+                <option>Bangalore</option>
+                <option>Hyderabad</option>
+                <option>Chennai</option>
+                <option>Pune</option>
+                <option>Kolkata</option>
+                <option>Jaipur</option>
+                <option>Other</option>
+              </select>
+              <div class="f-err" id="nSCityErr">Please select a city</div>
+            </div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSAddress">Registered Address *</label>
+            <input type="text" id="nSAddress" class="f-input" placeholder="Street, Area, Landmark" />
+            <div class="f-err" id="nSAddressErr">Address is required</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSReg">Registration Number <span style="font-weight:400;color:var(--txt-lt);">(if applicable)</span></label>
+            <input type="text" id="nSReg" class="f-input" placeholder="e.g., DL/NGO/2021/001234" />
+            <div class="f-hint">Enter your government NGO registration number for faster verification and Verified badge</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSArea">Area of Operation / Coverage *</label>
+            <input type="text" id="nSArea" class="f-input" placeholder="e.g., South Delhi, Bandra – Kurla, etc." />
+            <div class="f-err" id="nSAreaErr">Area of operation is required</div>
+          </div>
+
+          <div class="signup-section-head">👤 Contact Person</div>
+
+          <div class="f-grid-2">
+            <div class="f-group">
+              <label class="f-label" for="nSContact">Contact Person Name *</label>
+              <input type="text" id="nSContact" class="f-input" placeholder="Full name" />
+              <div class="f-err" id="nSContactErr">Contact name is required</div>
+            </div>
+            <div class="f-group">
+              <label class="f-label" for="nSPhone">Phone Number *</label>
+              <input type="tel" id="nSPhone" class="f-input" placeholder="10-digit mobile" maxlength="10" />
+              <div class="f-err" id="nSPhoneErr">Enter a valid 10-digit number</div>
+            </div>
+          </div>
+
+          <div class="signup-section-head">🔐 Account Credentials</div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSEmail">Email Address *</label>
+            <input type="email" id="nSEmail" class="f-input" placeholder="contact@yourngo.org" autocomplete="email" />
+            <div class="f-err" id="nSEmailErr">Enter a valid email address</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSPass">Password *</label>
+            <div class="pw-wrap">
+              <input type="password" id="nSPass" class="f-input" placeholder="Min. 6 characters" autocomplete="new-password" oninput="checkStrength(this,'nStrengthFill','nStrengthLbl')" />
+              <button type="button" class="pw-toggle" onclick="togglePw('nSPass',this)">👁️</button>
+            </div>
+            <div class="strength-bar"><div class="strength-fill" id="nStrengthFill"></div></div>
+            <div class="f-hint" id="nStrengthLbl"></div>
+            <div class="f-err" id="nSPassErr">Password must be at least 6 characters</div>
+          </div>
+
+          <div class="f-group">
+            <label class="f-label" for="nSConfirm">Confirm Password *</label>
+            <div class="pw-wrap">
+              <input type="password" id="nSConfirm" class="f-input" placeholder="Repeat password" autocomplete="new-password" />
+              <button type="button" class="pw-toggle" onclick="togglePw('nSConfirm',this)">👁️</button>
+            </div>
+            <div class="f-err" id="nSConfirmErr">Passwords do not match</div>
+          </div>
+
+          <div class="checkbox-row" style="margin-top:.8rem;">
+            <input type="checkbox" id="nTerms" />
+            <label for="nTerms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I confirm this is a legitimate non-profit organisation.</label>
+          </div>
+          <div class="f-err" id="nTermsErr" style="margin-bottom:.5rem;">Please accept the terms to continue</div>
+
+          <button type="submit" class="btn-submit-auth accent-btn" style="margin-top:1rem;">
+            <span id="nSignupBtnTxt">Register NGO Account</span>
+            <span id="nSignupSpinner" style="display:none;">⏳</span>
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>Already registered?</span></div>
+        <button onclick="switchTab('n','login')" style="width:100%;padding:.8rem;border-radius:50px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='#fdf3dc'" onmouseout="this.style.background='transparent'">
+          Log In Instead
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+  /* ── State ───────────────────────────────────────── */
+  let currentScreen = 'picker'; // 'picker' | 'Restaurant' | 'NGO'
+
+  /* ── Screen management ────────────────────────────── */
+  function showAuthScreen(role) {
+    document.getElementById('screenPicker').classList.remove('active');
+    document.getElementById('screenRestaurant').classList.remove('active');
+    document.getElementById('screenNGO').classList.remove('active');
+    currentScreen = role;
+
+    if (role === 'Restaurant') {
+      document.getElementById('screenRestaurant').classList.add('active');
+    } else {
+      document.getElementById('screenNGO').classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function goBack() {
+    if (currentScreen === 'picker') {
+      window.location.href = 'index.html';
+    } else {
+      currentScreen = 'picker';
+      document.getElementById('screenRestaurant').classList.remove('active');
+      document.getElementById('screenNGO').classList.remove('active');
+      document.getElementById('screenPicker').classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  /* ── Tab switching ────────────────────────────────── */
+  function switchTab(role, tab) {
+    const prefix = role === 'r' ? 'r' : 'n';
+    ['login','signup'].forEach(t => {
+      document.getElementById(prefix + 'Pane' + cap(t)).classList.remove('active');
+      document.getElementById(prefix + 'Tab'  + cap(t)).classList.remove('active');
+    });
+    document.getElementById(prefix + 'Pane' + cap(tab)).classList.add('active');
+    document.getElementById(prefix + 'Tab'  + cap(tab)).classList.add('active');
+    // clear alerts
+    ['Alert','Success'].forEach(s => {
+      const el = document.getElementById(prefix + cap(tab.includes('login') ? 'Login' : 'Signup') + s);
+      if(el) { el.classList.remove('show'); }
+    });
+  }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /* ── Password visibility ─────────────────────────── */
+  function togglePw(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁️'; }
+  }
+
+  /* ── Password strength ───────────────────────────── */
+  function checkStrength(inp, barId, lblId) {
+    const val = inp.value;
+    const bar = document.getElementById(barId);
+    const lbl = document.getElementById(lblId);
+    let score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const map = [
+      { w:'0%',   bg:'',        t:'' },
+      { w:'25%',  bg:'#ef4444', t:'Weak' },
+      { w:'50%',  bg:'#f97316', t:'Fair' },
+      { w:'75%',  bg:'#eab308', t:'Good' },
+      { w:'90%',  bg:'#22c55e', t:'Strong' },
+      { w:'100%', bg:'#16a34a', t:'Very Strong 💪' },
+    ];
+    const m = map[Math.min(score, 5)];
+    bar.style.width = m.w; bar.style.background = m.bg;
+    lbl.textContent = m.t; lbl.style.color = m.bg;
+  }
+
+  /* ── Validation helpers ─────────────────────────── */
+  function showErr(id, show) {
+    const el = document.getElementById(id);
+    const inp = document.getElementById(id.replace('Err',''));
+    if (!el) return;
+    el.classList.toggle('show', show);
+    if (inp) inp.classList.toggle('error', show);
+  }
+  function clearAllErrors(prefix) {
+    document.querySelectorAll(`[id^="${prefix}"]`).forEach(el => {
+      if (el.classList.contains('f-err')) el.classList.remove('show');
+      if (el.classList.contains('f-input') || el.classList.contains('f-select')) el.classList.remove('error');
+    });
+  }
+  function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  function isPhone(v) { return /^[6-9]\d{9}$/.test(v); }
+
+  /* ── LocalStorage DB ─────────────────────────────── */
+  function getUsers() { return JSON.parse(localStorage.getItem('nf_users') || '[]'); }
+  function saveUsers(u) { localStorage.setItem('nf_users', JSON.stringify(u)); }
+  function findUser(email, role) { return getUsers().find(u => u.email.toLowerCase() === email.toLowerCase() && u.role === role); }
+  function setSession(user) {
+    localStorage.setItem('nf_session', JSON.stringify({ ...user, loggedIn: true }));
+  }
+
+  /* ── Toast ───────────────────────────────────────── */
+  function toast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✅ ' : '❌ ') + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* ── Loading state ───────────────────────────────── */
+  function setLoading(btnTxtId, spinnerId, btnEl, loading) {
+    document.getElementById(btnTxtId).style.display = loading ? 'none' : 'inline';
+    document.getElementById(spinnerId).style.display = loading ? 'inline' : 'none';
+    btnEl.disabled = loading;
+  }
+
+  /* ═══════════════════════════════════
+     RESTAURANT LOGIN
+  ═══════════════════════════════════ */
+  document.getElementById('rLoginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAllErrors('rL');
+    const btn = this.querySelector('button[type=submit]');
+    const email = document.getElementById('rLEmail').value.trim();
+    const pass  = document.getElementById('rLPass').value;
+    let valid = true;
+
+    if (!isEmail(email)) { showErr('rLEmailErr', true); valid = false; }
+    if (!pass)            { showErr('rLPassErr',  true); valid = false; }
+    if (!valid) return;
+
+    setLoading('rLoginBtnTxt','rLoginSpinner', btn, true);
+    await delay(900);
+    setLoading('rLoginBtnTxt','rLoginSpinner', btn, false);
+
+    const user = findUser(email, 'restaurant');
+    if (!user) {
+      showAlert('rLoginAlert','rLoginAlertMsg','No account found with this email. Please create an account first.');
+      return;
+    }
+    if (user.password !== pass) {
+      showAlert('rLoginAlert','rLoginAlertMsg','Incorrect password. Please try again.');
+      return;
+    }
+
+    setSession(user);
+    document.getElementById('rLoginSuccess').classList.add('show');
+    hideAlert('rLoginAlert');
+    toast('Welcome back, ' + user.restaurantName + '!', 'success');
+    setTimeout(() => { window.location.href = 'restaurant.html'; }, 1200);
+  });
+
+  /* ═══════════════════════════════════
+     RESTAURANT SIGNUP
+  ═══════════════════════════════════ */
+  document.getElementById('rSignupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAllErrors('rS');
+    const btn = this.querySelector('button[type=submit]');
+
+    const name    = document.getElementById('rSName').value.trim();
+    const type    = document.getElementById('rSType').value;
+    const city    = document.getElementById('rSCity').value;
+    const address = document.getElementById('rSAddress').value.trim();
+    const owner   = document.getElementById('rSOwner').value.trim();
+    const phone   = document.getElementById('rSPhone').value.trim();
+    const email   = document.getElementById('rSEmail').value.trim();
+    const pass    = document.getElementById('rSPass').value;
+    const confirm = document.getElementById('rSConfirm').value;
+    const terms   = document.getElementById('rTerms').checked;
+    let valid = true;
+
+    if (!name)           { showErr('rSNameErr',    true); valid = false; }
+    if (!type)           { showErr('rSTypeErr',    true); valid = false; }
+    if (!city)           { showErr('rSCityErr',    true); valid = false; }
+    if (!address)        { showErr('rSAddressErr', true); valid = false; }
+    if (!owner)          { showErr('rSOwnerErr',   true); valid = false; }
+    if (!isPhone(phone)) { showErr('rSPhoneErr',   true); valid = false; }
+    if (!isEmail(email)) { showErr('rSEmailErr',   true); valid = false; }
+    if (pass.length < 6) { showErr('rSPassErr',    true); valid = false; }
+    if (pass !== confirm){ showErr('rSConfirmErr', true); valid = false; }
+    if (!terms)          { showErr('rTermsErr',    true); valid = false; }
+    if (!valid) return;
+
+    if (findUser(email, 'restaurant')) {
+      showAlert('rSignupAlert','rSignupAlertMsg','An account with this email already exists. Please log in.');
+      return;
+    }
+
+    setLoading('rSignupBtnTxt','rSignupSpinner', btn, true);
+    await delay(1000);
+    setLoading('rSignupBtnTxt','rSignupSpinner', btn, false);
+
+    const users = getUsers();
+    const newUser = {
+      role: 'restaurant', restaurantName: name, businessType: type, city, address,
+      ownerName: owner, phone, email, password: pass,
+      createdAt: new Date().toISOString(), id: 'R' + Date.now()
+    };
+    users.push(newUser);
+    saveUsers(users);
+    setSession(newUser);
+
+    hideAlert('rSignupAlert');
+    document.getElementById('rSignupSuccess').classList.add('show');
+    toast('Account created for ' + name + '!', 'success');
+    setTimeout(() => { window.location.href = 'restaurant.html'; }, 1500);
+  });
+
+  /* ═══════════════════════════════════
+     NGO LOGIN
+  ═══════════════════════════════════ */
+  document.getElementById('nLoginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAllErrors('nL');
+    const btn = this.querySelector('button[type=submit]');
+    const email = document.getElementById('nLEmail').value.trim();
+    const pass  = document.getElementById('nLPass').value;
+    let valid = true;
+
+    if (!isEmail(email)) { showErr('nLEmailErr', true); valid = false; }
+    if (!pass)           { showErr('nLPassErr',  true); valid = false; }
+    if (!valid) return;
+
+    setLoading('nLoginBtnTxt','nLoginSpinner', btn, true);
+    await delay(900);
+    setLoading('nLoginBtnTxt','nLoginSpinner', btn, false);
+
+    const user = findUser(email, 'ngo');
+    if (!user) {
+      showAlert('nLoginAlert','nLoginAlertMsg','No NGO account found with this email. Please register first.');
+      return;
+    }
+    if (user.password !== pass) {
+      showAlert('nLoginAlert','nLoginAlertMsg','Incorrect password. Please try again.');
+      return;
+    }
+
+    setSession(user);
+    document.getElementById('nLoginSuccess').classList.add('show');
+    hideAlert('nLoginAlert');
+    toast('Welcome back, ' + user.ngoName + '!', 'success');
+    setTimeout(() => { window.location.href = 'ngo.html'; }, 1200);
+  });
+
+  /* ═══════════════════════════════════
+     NGO SIGNUP
+  ═══════════════════════════════════ */
+  document.getElementById('nSignupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearAllErrors('nS');
+    const btn = this.querySelector('button[type=submit]');
+
+    const name    = document.getElementById('nSName').value.trim();
+    const type    = document.getElementById('nSType').value;
+    const city    = document.getElementById('nSCity').value;
+    const address = document.getElementById('nSAddress').value.trim();
+    const reg     = document.getElementById('nSReg').value.trim();
+    const area    = document.getElementById('nSArea').value.trim();
+    const contact = document.getElementById('nSContact').value.trim();
+    const phone   = document.getElementById('nSPhone').value.trim();
+    const email   = document.getElementById('nSEmail').value.trim();
+    const pass    = document.getElementById('nSPass').value;
+    const confirm = document.getElementById('nSConfirm').value;
+    const terms   = document.getElementById('nTerms').checked;
+    let valid = true;
+
+    if (!name)           { showErr('nSNameErr',    true); valid = false; }
+    if (!type)           { showErr('nSTypeErr',    true); valid = false; }
+    if (!city)           { showErr('nSCityErr',    true); valid = false; }
+    if (!address)        { showErr('nSAddressErr', true); valid = false; }
+    if (!area)           { showErr('nSAreaErr',    true); valid = false; }
+    if (!contact)        { showErr('nSContactErr', true); valid = false; }
+    if (!isPhone(phone)) { showErr('nSPhoneErr',   true); valid = false; }
+    if (!isEmail(email)) { showErr('nSEmailErr',   true); valid = false; }
+    if (pass.length < 6) { showErr('nSPassErr',    true); valid = false; }
+    if (pass !== confirm){ showErr('nSConfirmErr', true); valid = false; }
+    if (!terms)          { showErr('nTermsErr',    true); valid = false; }
+    if (!valid) return;
+
+    if (findUser(email, 'ngo')) {
+      showAlert('nSignupAlert','nSignupAlertMsg','An NGO account with this email already exists. Please log in.');
+      return;
+    }
+
+    setLoading('nSignupBtnTxt','nSignupSpinner', btn, true);
+    await delay(1100);
+    setLoading('nSignupBtnTxt','nSignupSpinner', btn, false);
+
+    const users = getUsers();
+    const newUser = {
+      role: 'ngo', ngoName: name, orgType: type, city, address, regNumber: reg,
+      operationArea: area, contactName: contact, phone, email, password: pass,
+      createdAt: new Date().toISOString(), id: 'N' + Date.now()
+    };
+    users.push(newUser);
+    saveUsers(users);
+    setSession(newUser);
+
+    hideAlert('nSignupAlert');
+    document.getElementById('nSignupSuccess').classList.add('show');
+    toast('Account created for ' + name + '!', 'success');
+    setTimeout(() => { window.location.href = 'ngo.html'; }, 1500);
+  });
+
+  /* ── Alert helpers ────────────────────────────────── */
+  function showAlert(containerId, msgId, msg) {
+    document.getElementById(msgId).textContent = msg;
+    document.getElementById(containerId).classList.add('show');
+  }
+  function hideAlert(id) { document.getElementById(id).classList.remove('show'); }
+
+  /* ── Delay util ─────────────────────────────────── */
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  /* ── Phone number: digits only ──────────────────── */
+  document.querySelectorAll('input[type=tel]').forEach(inp => {
+    inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D/g,''); });
+  });
+
+  /* ── Auto-redirect if already logged in ─────────── */
+  (function checkSession() {
+    const s = JSON.parse(localStorage.getItem('nf_session') || 'null');
+    // Only redirect if explicitly landed with ?redirect=true (prevents infinite loops)
+    // For demo, we skip auto-redirect so users can always view login page
+  })();
+</script>
+
+</body>
+</html>

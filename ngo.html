@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriFlow – NGO Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body id="ngoDash">
+
+<!-- ══════════════════════════════════════════════════════
+     CONFIRM POPUP
+════════════════════════════════════════════════════════ -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <span class="confirm-icon">🤝</span>
+    <div class="confirm-title">Confirm Pickup</div>
+    <p class="confirm-text">
+      Are you sure you want to accept the pickup for
+      <strong id="popupFoodName"></strong>?<br />
+      <span style="font-size:.82rem;color:var(--text-light);">
+        You'll be responsible for collecting and distributing this food.
+      </span>
+    </p>
+    <div class="confirm-btns">
+      <button class="confirm-yes" id="confirmYes">✅ Yes, Accept!</button>
+      <button class="confirm-no"  id="confirmNo">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     LAYOUT
+════════════════════════════════════════════════════════ -->
+<div class="dash-layout flex">
+
+  <!-- ─────────────── SIDEBAR ─────────────── -->
+  <aside class="dash-sidebar">
+    <!-- Brand -->
+    <a href="index.html" class="sidebar-brand">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div>
+        <div class="sidebar-brand-name">NutriFlow</div>
+        <div style="font-size:.68rem;color:rgba(255,255,255,.5);font-weight:400;">NGO Portal</div>
+      </div>
+    </a>
+
+    <!-- Profile card -->
+    <div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,.1);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+             style="background:rgba(255,255,255,.15);">🤝</div>
+        <div>
+          <div class="text-sm font-semibold text-white">Hope Foundation</div>
+          <div class="flex items-center gap-1 mt-0.5">
+            <span class="badge-verified" style="font-size:.6rem;padding:.15rem .45rem;">✅ Verified NGO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="sidebar-section-label">Navigation</div>
+    <div class="sidebar-nav flex-col flex">
+      <div class="sidebar-link active" onclick="smoothScroll('availableFood')">
+        <span class="icon">🍽️</span> Available Food
+      </div>
+      <div class="sidebar-link" onclick="smoothScroll('myPickups')">
+        <span class="icon">📦</span> My Pickups
+      </div>
+      <div class="sidebar-link" onclick="smoothScroll('ngoNotifications')">
+        <span class="icon">🔔</span> Notifications
+      </div>
+      <div class="sidebar-link" onclick="smoothScroll('ngoImpact')">
+        <span class="icon">🏆</span> My Impact
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Quick Stats</div>
+    <div class="space-y-2">
+      <div class="rounded-lg p-3 text-center" style="background:rgba(255,255,255,.08);">
+        <div class="text-lg font-bold text-green-300" id="ngoStatMeals">0</div>
+        <div class="text-xs" style="color:rgba(255,255,255,.55);">Meals Distributed</div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-lg p-2 text-center" style="background:rgba(255,255,255,.08);">
+          <div class="text-base font-bold text-blue-300" id="ngoStatPickups">0</div>
+          <div class="text-xs" style="color:rgba(255,255,255,.5);">Pickups</div>
+        </div>
+        <div class="rounded-lg p-2 text-center" style="background:rgba(255,255,255,.08);">
+          <div class="text-base font-bold text-yellow-300" id="ngoStatAvailable">0</div>
+          <div class="text-xs" style="color:rgba(255,255,255,.5);">Available</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <a href="login.html" class="sidebar-link" style="color:rgba(255,255,255,.5);">
+        <span class="icon">←</span> Switch Role
+      </a>
+      <a href="index.html" class="sidebar-link" style="color:rgba(255,255,255,.5);">
+        <span class="icon">🏠</span> Back to Home
+      </a>
+    </div>
+  </aside>
+
+  <!-- ─────────────── MAIN CONTENT ─────────────── -->
+  <main class="dash-main">
+
+    <!-- Page header -->
+    <div class="flex items-start justify-between mb-8 flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold" style="font-family:'Playfair Display',serif;color:var(--text-dark);">
+          NGO Dashboard
+        </h1>
+        <p class="text-sm mt-1" style="color:var(--text-light);">
+          Find available food and track your pickups
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="badge-verified">✅ Verified NGO</span>
+        <div class="text-sm px-3 py-1 rounded-lg" style="background:var(--green-xpale);color:var(--green-dark);font-weight:600;">
+          📍 New Delhi, India
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="stat-card">
+        <div class="stat-icon">🥗</div>
+        <div class="stat-value" id="ngoStatMeals2">0</div>
+        <div class="stat-label">Meals Distributed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value" style="color:#059669;" id="ngoStatPickups2">0</div>
+        <div class="stat-label">Total Pickups</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚚</div>
+        <div class="stat-value" style="color:#7c3aed;" id="ngoStatInProgress">0</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🍽️</div>
+        <div class="stat-value" style="color:#d97706;" id="ngoStatAvailable2">0</div>
+        <div class="stat-label">Available Now</div>
+      </div>
+    </div>
+
+    <!-- ── AVAILABLE FOOD ── -->
+    <section id="availableFood" class="mb-10">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="dash-section-title mb-0">🍽️ Available Food Near You</div>
+        <div class="flex items-center gap-3">
+          <!-- Filter pills -->
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="filterFood('all',this)"
+                    class="text-xs font-semibold px-3 py-1.5 rounded-full border transition-all food-filter-btn active-filter"
+                    style="background:var(--green-dark);color:#fff;border-color:var(--green-dark);">
+              All
+            </button>
+            <button onclick="filterFood('Veg',this)"
+                    class="text-xs font-semibold px-3 py-1.5 rounded-full border transition-all food-filter-btn"
+                    style="color:var(--text-mid);border-color:#d1e3dd;">
+              🟢 Veg
+            </button>
+            <button onclick="filterFood('Non-Veg',this)"
+                    class="text-xs font-semibold px-3 py-1.5 rounded-full border transition-all food-filter-btn"
+                    style="color:var(--text-mid);border-color:#d1e3dd;">
+              🔴 Non-Veg
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="availableFoodContainer" class="grid md:grid-cols-2 gap-4">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ── MY PICKUPS ── -->
+    <section id="myPickups" class="mb-10">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="dash-section-title mb-0">📦 My Pickups</div>
+        <div class="tab-bar">
+          <button class="tab-btn tab-active" onclick="filterPickups('all', this)">All</button>
+          <button class="tab-btn" onclick="filterPickups('accepted', this)">✅ Accepted</button>
+          <button class="tab-btn" onclick="filterPickups('in-progress', this)">🚚 In Progress</button>
+          <button class="tab-btn" onclick="filterPickups('completed', this)">🏆 Done</button>
+        </div>
+      </div>
+      <div id="myPickupsContainer" class="grid md:grid-cols-2 gap-4">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ── NOTIFICATIONS ── -->
+    <section id="ngoNotifications" class="mb-10">
+      <div class="dash-section-title">🔔 Notifications</div>
+      <div class="form-card" style="padding:1.2rem;">
+        <div id="ngoNotifContainer">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ── IMPACT ── -->
+    <section id="ngoImpact">
+      <div class="dash-section-title">🏆 Your Impact</div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <!-- Big impact box -->
+        <div class="md:col-span-2">
+          <div class="impact-box">
+            <div class="text-sm font-semibold mb-3" style="color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.1em;">
+              Meals Distributed by Hope Foundation
+            </div>
+            <div class="impact-box-num" id="ngoImpactMeals">0</div>
+            <div class="impact-box-label mt-2">meals served to people in need 🌍</div>
+
+            <div class="grid grid-cols-3 gap-4 mt-8 pt-6" style="border-top:1px solid rgba(255,255,255,.15);">
+              <div>
+                <div class="text-xl font-bold text-green-300" id="impactTotalPickups">0</div>
+                <div class="text-xs mt-1" style="color:rgba(255,255,255,.55);">Total Pickups</div>
+              </div>
+              <div>
+                <div class="text-xl font-bold text-blue-300" id="impactDonePickups">0</div>
+                <div class="text-xs mt-1" style="color:rgba(255,255,255,.55);">Completed</div>
+              </div>
+              <div>
+                <div class="text-xl font-bold text-yellow-300" id="impactFamilies">0</div>
+                <div class="text-xs mt-1" style="color:rgba(255,255,255,.55);">Families Fed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips card -->
+        <div class="form-card flex flex-col gap-4">
+          <div class="font-bold text-base" style="color:var(--text-dark);">💡 Quick Tips</div>
+          <div class="flex items-start gap-3 text-sm">
+            <span class="text-xl flex-shrink-0">🔥</span>
+            <div>
+              <div class="font-semibold text-gray-700">Check expiring soon</div>
+              <div style="color:var(--text-light);font-size:.8rem;">Food with 🔥 badge expires within 24 hrs</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 text-sm">
+            <span class="text-xl flex-shrink-0">📏</span>
+            <div>
+              <div class="font-semibold text-gray-700">Distance shown</div>
+              <div style="color:var(--text-light);font-size:.8rem;">Cards show estimated distance from your location</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 text-sm">
+            <span class="text-xl flex-shrink-0">📞</span>
+            <div>
+              <div class="font-semibold text-gray-700">Contact restaurant</div>
+              <div style="color:var(--text-light);font-size:.8rem;">Call the restaurant to coordinate pickup timing</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 text-sm">
+            <span class="text-xl flex-shrink-0">🏆</span>
+            <div>
+              <div class="font-semibold text-gray-700">Update status</div>
+              <div style="color:var(--text-light);font-size:.8rem;">Mark pickups as In Progress → Completed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+<script>
+  // Extended stat rendering for NGO
+  const _origNGOStats = renderNGOStats;
+  function renderNGOStats() {
+    const listings = getListings();
+    const myPickups = listings.filter(l => l.acceptedBy === 'Hope Foundation NGO');
+    const completed  = myPickups.filter(l => l.status === 'completed');
+    const inProgress = myPickups.filter(l => l.status === 'in-progress');
+    const totalMeals = completed.reduce((s,l) => s + (l.mealsEstimate||0), 0);
+    const available  = listings.filter(l => l.status === 'pending').length;
+
+    const set = (id, val) => { const e=document.getElementById(id); if(e) e.textContent=val; };
+    ['ngoStatMeals','ngoStatMeals2','ngoImpactMeals'].forEach(id => set(id, totalMeals));
+    ['ngoStatPickups','ngoStatPickups2','impactTotalPickups'].forEach(id => set(id, myPickups.length));
+    ['ngoStatAvailable','ngoStatAvailable2'].forEach(id => set(id, available));
+    set('ngoStatInProgress', inProgress.length);
+    set('impactDonePickups', completed.length);
+    set('impactFamilies', Math.round(totalMeals / 4));
+  }
+
+  // Food type filter
+  let foodTypeFilter = 'all';
+  function filterFood(type, btn) {
+    foodTypeFilter = type;
+    document.querySelectorAll('.food-filter-btn').forEach(b => {
+      b.style.background = '';
+      b.style.color = 'var(--text-mid)';
+      b.style.borderColor = '#d1e3dd';
+    });
+    if (btn) {
+      btn.style.background = 'var(--green-dark)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--green-dark)';
+    }
+
+    const container = document.getElementById('availableFoodContainer');
+    if (!container) return;
+    const listings = getListings().filter(l => l.status === 'pending');
+    const filtered = type === 'all' ? listings : listings.filter(l => l.foodType === type);
+    const distances = ['1.2 km','2.4 km','3.1 km','0.8 km','4.5 km'];
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="empty-state md:col-span-2"><div class="empty-icon">🍽️</div><p>No ${type !== 'all' ? type : ''} food available right now.</p></div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map((l, i) => `
+      <div class="card food-card" data-id="${l.id}">
+        <div class="card-header-row">
+          <div>
+            <h3 class="card-title">${l.foodName}</h3>
+            <p class="card-subtitle">${l.restaurant}</p>
+          </div>
+          <div class="card-badges">
+            <span class="badge-type-${l.foodType === 'Veg' ? 'veg' : 'nonveg'}">${l.foodType === 'Veg' ? '🟢 Veg' : '🔴 Non-Veg'}</span>
+            ${isExpiringSoon(l.expiry) ? '<span class="badge-expiring">🔥 Expiring Soon</span>' : ''}
+          </div>
+        </div>
+        <div class="card-meta">
+          <span>📦 ${l.quantity}</span>
+          <span>📍 ${l.location}</span>
+          <span>📏 ${distances[i % distances.length]} away</span>
+          <span>📅 Expires: ${l.expiry}</span>
+          <span>📞 ${l.contact}</span>
+        </div>
+        <div class="card-footer-row">
+          <span class="meals-count">🥗 ~${l.mealsEstimate} meals</span>
+          <button class="btn-accept" onclick="acceptFood('${l.id}')">
+            🤝 Accept Pickup
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  // Pickup filter
+  function filterPickups(status, btn) {
+    document.querySelectorAll('[onclick^="filterPickups"]').forEach(b => b.classList.remove('tab-active'));
+    if (btn) btn.classList.add('tab-active');
+
+    const container = document.getElementById('myPickupsContainer');
+    if (!container) return;
+    const all = getListings().filter(l => l.acceptedBy === 'Hope Foundation NGO');
+    const filtered = status === 'all' ? all : all.filter(l => l.status === status);
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="empty-state md:col-span-2"><div class="empty-icon">📦</div><p>No pickups with "${status}" status.</p></div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(l => `
+      <div class="card pickup-card">
+        <div class="card-header-row">
+          <div>
+            <h3 class="card-title">${l.foodName}</h3>
+            <p class="card-subtitle">${l.restaurant}</p>
+          </div>
+          ${statusBadge(l.status)}
+        </div>
+        <div class="card-meta">
+          <span>📦 ${l.quantity}</span>
+          <span>📍 ${l.location}</span>
+          <span>📞 ${l.contact}</span>
+          <span>📅 Expires: ${l.expiry}</span>
+        </div>
+        <div class="card-footer-row">
+          <span class="meals-count">🥗 ~${l.mealsEstimate} meals</span>
+          ${l.status === 'accepted'     ? `<button class="btn-progress"  onclick="markInProgress('${l.id}')">🚚 In Progress</button>` : ''}
+          ${l.status === 'in-progress'  ? `<button class="btn-complete"  onclick="markCompleted('${l.id}')">✅ Complete</button>` : ''}
+          ${l.status === 'completed'    ? `<span class="text-xs font-semibold" style="color:#059669;">✅ Successfully distributed</span>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  // Override renderMyPickups to also update filter view
+  const _origRenderPickups = renderMyPickups;
+  function renderMyPickups() {
+    filterPickups('all', null);
+  }
+
+  // Override renderAvailableFood
+  const _origRenderFood = renderAvailableFood;
+  function renderAvailableFood() {
+    filterFood('all', null);
+  }
+
+  // Smooth scroll
+  function smoothScroll(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Set today's date label
+  document.addEventListener('DOMContentLoaded', function() {
+    // Re-render with custom renderers
+    renderAvailableFood();
+    renderMyPickups();
+    renderNGONotifications();
+    renderNGOStats();
+  });
+</script>
+</body>
+</html>

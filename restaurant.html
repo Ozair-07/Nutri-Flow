@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriFlow – Restaurant Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ─── Sidebar nav anchor fix ─────────────────────── */
+    /*  Removes default <a> decoration inside sidebar     */
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* nav-item = clickable sidebar link */
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem .9rem;
+      border-radius: 10px;
+      color: rgba(255,255,255,.72);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 500;
+      transition: background .18s, color .18s, transform .15s;
+      margin-bottom: .2rem;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-item .nav-icon {
+      font-size: 1.05rem;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center;
+      transition: transform .2s;
+    }
+
+    /* Hover state */
+    .nav-item:hover {
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      transform: translateX(3px);
+    }
+    .nav-item:hover .nav-icon {
+      transform: scale(1.15);
+    }
+
+    /* Active / selected state */
+    .nav-item.active {
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      font-weight: 600;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: #86efac;          /* green accent indicator */
+    }
+
+    /* Dimmed bottom links (Switch Role / Back to Home) */
+    .nav-item.dim {
+      color: rgba(255,255,255,.45);
+    }
+    .nav-item.dim:hover {
+      color: rgba(255,255,255,.75);
+    }
+
+    /* ─── Mobile top-bar for sidebar ───────────────── */
+    .mob-sidebar-bar {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: #2f5d50;
+      padding: .75rem 1.2rem;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+    .mob-sidebar-bar .mob-brand {
+      display: flex; align-items: center; gap: .6rem;
+      color: #fff; font-weight: 700; font-size: .95rem;
+      text-decoration: none;
+    }
+    .mob-menu-btn {
+      background: rgba(255,255,255,.15);
+      border: none; cursor: pointer;
+      border-radius: 8px; padding: .4rem .7rem;
+      color: #fff; font-size: .85rem; font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: background .2s;
+    }
+    .mob-menu-btn:hover { background: rgba(255,255,255,.25); }
+
+    /* Mobile drawer overlay */
+    .mob-nav-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 49;
+      backdrop-filter: blur(2px);
+    }
+    .mob-nav-overlay.open { display: block; }
+
+    /* Mobile nav drawer */
+    .mob-nav-drawer {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 270px;
+      background: #2f5d50;
+      z-index: 50;
+      padding: 2rem 1.5rem;
+      transform: translateX(-100%);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+      overflow-y: auto;
+    }
+    .mob-nav-drawer.open { transform: translateX(0); }
+    .mob-drawer-close {
+      display: flex; align-items: center; justify-content: flex-end;
+      margin-bottom: 1.5rem;
+    }
+    .mob-drawer-close button {
+      background: rgba(255,255,255,.12); border: none; cursor: pointer;
+      border-radius: 50%; width: 32px; height: 32px;
+      color: rgba(255,255,255,.8); font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .mob-drawer-close button:hover { background: rgba(255,255,255,.25); }
+
+    /* Responsive: hide sidebar on small screens, show mobile bar instead */
+    @media (max-width: 900px) {
+      .dash-sidebar { display: none !important; }
+      .mob-sidebar-bar { display: flex !important; }
+    }
+
+    /* ─── Section scroll offset (account for sticky header) */
+    .dash-section-anchor {
+      scroll-margin-top: 24px;
+    }
+  </style>
+</head>
+<body id="restaurantDash">
+
+<!-- ═══════════════════════════════════════════════════
+     MOBILE TOP BAR  (visible only on small screens)
+═══════════════════════════════════════════════════ -->
+<div class="mob-sidebar-bar" id="mobSidebarBar">
+  <a href="index.html" class="mob-brand">
+    <span style="font-size:1.3rem;">🌿</span> NutriFlow
+  </a>
+  <button class="mob-menu-btn" id="mobMenuBtn" aria-label="Open menu">
+    ☰ &nbsp;Menu
+  </button>
+</div>
+
+<!-- Mobile overlay -->
+<div class="mob-nav-overlay" id="mobOverlay"></div>
+
+<!-- Mobile nav drawer -->
+<div class="mob-nav-drawer" id="mobDrawer">
+  <div class="mob-drawer-close">
+    <button id="mobDrawerClose" aria-label="Close menu">✕</button>
+  </div>
+
+  <!-- Brand in drawer -->
+  <a href="index.html" style="display:flex;align-items:center;gap:.7rem;text-decoration:none;margin-bottom:1.5rem;">
+    <div style="background:rgba(255,255,255,.15);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌿</div>
+    <div>
+      <div style="font-weight:700;font-size:.95rem;color:#fff;">NutriFlow</div>
+      <div style="font-size:.62rem;color:rgba(255,255,255,.5);">Restaurant Portal</div>
+    </div>
+  </a>
+
+  <!-- Profile in drawer -->
+  <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:.75rem;margin-bottom:1.2rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🧑‍🍳</div>
+      <div>
+        <div id="mobProfileName" style="font-size:.85rem;font-weight:600;color:#fff;">My Restaurant</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);">Restaurant Owner</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:.65rem;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase;padding-left:.4rem;margin-bottom:.6rem;">Navigation</div>
+
+  <nav class="sidebar-nav" id="mobSidebarNav">
+    <a href="#add-food"      class="nav-item active" data-section="add-food">
+      <span class="nav-icon">➕</span> Add Food
+    </a>
+    <a href="#my-listings"   class="nav-item" data-section="my-listings">
+      <span class="nav-icon">📋</span> My Listings
+    </a>
+    <a href="#notifications" class="nav-item" data-section="notifications">
+      <span class="nav-icon">🔔</span> Notifications
+    </a>
+    <a href="#my-impact"     class="nav-item" data-section="my-impact">
+      <span class="nav-icon">🏆</span> My Impact
+    </a>
+  </nav>
+
+  <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.12);">
+    <a href="login.html"  class="nav-item dim"><span class="nav-icon">⇄</span> Switch Role</a>
+    <a href="index.html"  class="nav-item dim"><span class="nav-icon">🏠</span> Back to Home</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════════════ -->
+<div class="dash-layout flex">
+
+  <!-- ══════════════ SIDEBAR (desktop) ══════════════ -->
+  <aside class="dash-sidebar" id="mainSidebar">
+
+    <!-- Brand -->
+    <a href="index.html" class="sidebar-brand" style="text-decoration:none;">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div>
+        <div class="sidebar-brand-name">NutriFlow</div>
+        <div style="font-size:.68rem;color:rgba(255,255,255,.5);font-weight:400;">Restaurant Portal</div>
+      </div>
+    </a>
+
+    <!-- Profile card -->
+    <div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,.1);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+             style="background:rgba(255,255,255,.15);">🧑‍🍳</div>
+        <div>
+          <div class="text-sm font-semibold text-white" id="sidebarProfileName">My Restaurant</div>
+          <div class="text-xs" style="color:rgba(255,255,255,.5);">Restaurant Owner</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRIMARY NAV ── -->
+    <div class="sidebar-section-label">Navigation</div>
+
+    <nav class="sidebar-nav" id="desktopSidebarNav" aria-label="Dashboard navigation">
+      <a href="#add-food"      class="nav-item active" data-section="add-food">
+        <span class="nav-icon">➕</span> Add Food
+      </a>
+      <a href="#my-listings"   class="nav-item" data-section="my-listings">
+        <span class="nav-icon">📋</span> My Listings
+      </a>
+      <a href="#notifications" class="nav-item" data-section="notifications">
+        <span class="nav-icon">🔔</span> Notifications
+      </a>
+      <a href="#my-impact"     class="nav-item" data-section="my-impact">
+        <span class="nav-icon">🏆</span> My Impact
+      </a>
+    </nav>
+
+    <!-- ── QUICK STATS ── -->
+    <div class="sidebar-section-label">Quick Stats</div>
+    <div class="space-y-2">
+      <div class="rounded-lg p-3 text-center" style="background:rgba(255,255,255,.08);">
+        <div class="text-lg font-bold text-green-300" id="statMeals">0</div>
+        <div class="text-xs" style="color:rgba(255,255,255,.55);">Total Meals</div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-lg p-2 text-center" style="background:rgba(255,255,255,.08);">
+          <div class="text-base font-bold text-yellow-300" id="statPending">0</div>
+          <div class="text-xs" style="color:rgba(255,255,255,.5);">Pending</div>
+        </div>
+        <div class="rounded-lg p-2 text-center" style="background:rgba(255,255,255,.08);">
+          <div class="text-base font-bold text-blue-300" id="statCompleted">0</div>
+          <div class="text-xs" style="color:rgba(255,255,255,.5);">Done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM LINKS ── -->
+    <div class="sidebar-bottom">
+      <a href="login.html" class="nav-item dim">
+        <span class="nav-icon">⇄</span> Switch Role
+      </a>
+      <a href="index.html" class="nav-item dim">
+        <span class="nav-icon">🏠</span> Back to Home
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════ MAIN CONTENT ══════════════ -->
+  <main class="dash-main">
+
+    <!-- Page header -->
+    <div class="flex items-start justify-between mb-8 flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold" style="font-family:'Playfair Display',serif;color:var(--text-dark);">
+          Restaurant Dashboard
+        </h1>
+        <p class="text-sm mt-1" style="color:var(--text-light);">
+          Manage your food listings and track your impact
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="badge-verified">✅ Verified Restaurant</span>
+        <div class="text-sm" style="color:var(--text-light);">
+          📅 <span id="todayDate"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="stat-card">
+        <div class="stat-icon">🥗</div>
+        <div class="stat-value" id="statMeals2">0</div>
+        <div class="stat-label">Meals Saved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value" style="color:#d97706;" id="statPending2">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" style="color:#059669;" id="statCompleted2">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🤝</div>
+        <div class="stat-value" style="color:#2563eb;" id="statAccepted">0</div>
+        <div class="stat-label">Accepted</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION: ADD FOOD
+         id="add-food" matches href="#add-food"
+    ══════════════════════════════════════════ -->
+    <section id="add-food" class="mb-10 dash-section-anchor">
+      <div class="dash-section-title">➕ Add New Food Listing</div>
+
+      <div class="form-card">
+        <form id="addFoodForm" autocomplete="off">
+          <div class="form-grid-2">
+
+            <div class="form-group">
+              <label class="form-label" for="foodName">Food Name *</label>
+              <input type="text" id="foodName" class="form-input"
+                     placeholder="e.g., Biryani, Dal Makhani…" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="foodType">Food Type *</label>
+              <select id="foodType" class="form-select" required>
+                <option value="Veg">🟢 Vegetarian</option>
+                <option value="Non-Veg">🔴 Non-Vegetarian</option>
+                <option value="Vegan">🌱 Vegan</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="quantity">Quantity *</label>
+              <div class="flex gap-2">
+                <input type="number" id="quantity" class="form-input" style="flex:1;"
+                       placeholder="e.g., 15" min="0.5" step="0.5" required />
+                <select id="unit" class="form-select" style="width:110px;">
+                  <option value="kg">kg</option>
+                  <option value="pieces">pieces</option>
+                  <option value="litres">litres</option>
+                  <option value="portions">portions</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="expiry">Expiry Date *</label>
+              <input type="date" id="expiry" class="form-input" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="location">Pickup Location *</label>
+              <input type="text" id="location" class="form-input"
+                     placeholder="e.g., Sector 14, Connaught Place…" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact">Contact Number *</label>
+              <input type="tel" id="contact" class="form-input"
+                     placeholder="e.g., 98765 43210" required />
+            </div>
+
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="notes">Additional Notes (optional)</label>
+            <input type="text" id="notes" class="form-input"
+                   placeholder="Any allergens, packaging info, special instructions…" />
+          </div>
+
+          <div class="flex items-center gap-4 flex-wrap">
+            <button type="submit" class="btn-submit">🚀 Post Food Listing</button>
+            <button type="reset"
+                    style="font-size:.85rem;font-weight:500;color:var(--text-light);background:none;border:none;cursor:pointer;padding:.4rem .8rem;border-radius:8px;transition:background .2s;"
+                    onmouseover="this.style.background='#f0f5f3'"
+                    onmouseout="this.style.background='none'">
+              ✕ Clear form
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SECTION: MY LISTINGS
+    ══════════════════════════════════════════ -->
+    <section id="my-listings" class="mb-10 dash-section-anchor">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="dash-section-title mb-0">📋 My Listings</div>
+        <div class="tab-bar">
+          <button class="tab-btn tab-active" id="filterAll"       data-filter="all">All</button>
+          <button class="tab-btn"            id="filterPending"   data-filter="pending">⏳ Pending</button>
+          <button class="tab-btn"            id="filterAccepted"  data-filter="accepted">✅ Accepted</button>
+          <button class="tab-btn"            id="filterCompleted" data-filter="completed">🏆 Done</button>
+        </div>
+      </div>
+      <div id="listingsContainer" class="grid md:grid-cols-2 gap-4">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SECTION: NOTIFICATIONS
+    ══════════════════════════════════════════ -->
+    <section id="notifications" class="mb-10 dash-section-anchor">
+      <div class="dash-section-title">🔔 Notifications</div>
+      <div class="form-card" style="padding:1.2rem;">
+        <div id="notifContainer">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SECTION: MY IMPACT
+    ══════════════════════════════════════════ -->
+    <section id="my-impact" class="dash-section-anchor">
+      <div class="dash-section-title">🏆 Your Impact</div>
+      <div class="impact-box">
+        <div class="text-sm font-semibold mb-3"
+             style="color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.1em;">
+          Total Meals You've Helped Serve
+        </div>
+        <div class="impact-box-num" id="impactMeals">0</div>
+        <div class="impact-box-label mt-2">meals saved from going to waste 🌍</div>
+
+        <div class="grid grid-cols-3 gap-4 mt-8 pt-6"
+             style="border-top:1px solid rgba(255,255,255,.15);">
+          <div>
+            <div class="text-xl font-bold text-green-300" id="impactListings">0</div>
+            <div class="text-xs mt-1" style="color:rgba(255,255,255,.55);">Listings Posted</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-blue-300" id="impactCompleted">0</div>
+            <div class="text-xs mt-1" style="color:rgba(255,255,255,.55);">Completed</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-yellow-300" id="impactPending">0</div>
+            <div class="text-xs mt-1" style="color:rgba(255,255,255,.55);">Pending</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- end .dash-layout -->
+
+<!-- ═══════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════ -->
+<script src="script.js"></script>
+<script>
+/* ════════════════════════════════════════════════════
+   1. TODAY'S DATE
+════════════════════════════════════════════════════ */
+document.getElementById('todayDate').textContent =
+  new Date().toLocaleDateString('en-IN', {
+    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+  });
+
+/* ════════════════════════════════════════════════════
+   2. SIDEBAR NAVIGATION — event-listener approach
+      Works for BOTH desktop nav and mobile drawer nav
+════════════════════════════════════════════════════ */
+(function initSidebarNav() {
+
+  /* All nav items across both desktop + mobile navs */
+  const allNavItems = document.querySelectorAll('.nav-item[data-section]');
+
+  /* The section ID each nav item points to */
+  const sectionMap = {
+    'add-food':      'add-food',
+    'my-listings':   'my-listings',
+    'notifications': 'notifications',
+    'my-impact':     'my-impact',
+  };
+
+  /* ── Set active state ─────────────────────────── */
+  function setActive(sectionId) {
+    allNavItems.forEach(item => {
+      const isMatch = item.dataset.section === sectionId;
+      item.classList.toggle('active', isMatch);
+    });
+  }
+
+  /* ── Smooth scroll to section ─────────────────── */
+  function scrollToSection(sectionId) {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── Attach click listeners to every nav item ─── */
+  allNavItems.forEach(item => {
+    item.addEventListener('click', function (e) {
+      e.preventDefault();                         // stop native anchor jump
+
+      const sectionId = this.dataset.section;
+      if (!sectionId) return;
+
+      setActive(sectionId);                       // highlight this item
+      scrollToSection(sectionId);                 // smooth scroll
+
+      // Close mobile drawer if open
+      closeMobileDrawer();
+    });
+  });
+
+  /* ── Update active item on scroll ──────────────── */
+  const sections = ['add-food', 'my-listings', 'notifications', 'my-impact'];
+
+  const scrollObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+        }
+      });
+    },
+    {
+      rootMargin: '-30% 0px -60% 0px',  // trigger when section is in upper 40%
+      threshold: 0
+    }
+  );
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) scrollObserver.observe(el);
+  });
+
+})();
+
+/* ════════════════════════════════════════════════════
+   3. MOBILE DRAWER — open / close logic
+════════════════════════════════════════════════════ */
+function openMobileDrawer() {
+  document.getElementById('mobDrawer').classList.add('open');
+  document.getElementById('mobOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileDrawer() {
+  document.getElementById('mobDrawer').classList.remove('open');
+  document.getElementById('mobOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('mobMenuBtn').addEventListener('click', openMobileDrawer);
+document.getElementById('mobDrawerClose').addEventListener('click', closeMobileDrawer);
+document.getElementById('mobOverlay').addEventListener('click', closeMobileDrawer);
+
+/* ════════════════════════════════════════════════════
+   4. FILTER TABS — event-listener approach
+      (replaces inline onclick="filterListings(...)")
+════════════════════════════════════════════════════ */
+(function initFilterTabs() {
+  const filterBtns = document.querySelectorAll('.tab-btn[data-filter]');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function () {
+      filterBtns.forEach(b => b.classList.remove('tab-active'));
+      this.classList.add('tab-active');
+      renderFilteredListings(this.dataset.filter);
+    });
+  });
+})();
+
+function renderFilteredListings(status) {
+  const container = document.getElementById('listingsContainer');
+  if (!container) return;
+
+  const all      = getListings().filter(l => l.restaurant === 'My Restaurant');
+  const filtered = status === 'all' ? all : all.filter(l => l.status === status);
+
+  if (filtered.length === 0) {
+    const label = status === 'all' ? '' : `"${status}"`;
+    container.innerHTML = `
+      <div class="empty-state md:col-span-2">
+        <div class="empty-icon">📋</div>
+        <p>No ${label} listings yet.</p>
+        <p class="empty-sub">Add your first listing using the form above!</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(l => `
+    <div class="card listing-card" data-id="${l.id}">
+      <div class="card-header-row">
+        <div>
+          <h3 class="card-title">${l.foodName}</h3>
+          <p class="card-subtitle">${l.quantity} · ${l.foodType}</p>
+        </div>
+        <div class="card-badges">
+          ${statusBadge(l.status)}
+          ${isExpiringSoon(l.expiry) ? '<span class="badge-expiring">🔥 Expiring Soon</span>' : ''}
+        </div>
+      </div>
+      <div class="card-meta">
+        <span>📍 ${l.location}</span>
+        <span>📅 Expires: ${l.expiry}</span>
+        <span>📞 ${l.contact}</span>
+      </div>
+      ${l.acceptedBy ? `<p class="accepted-by">Accepted by: <strong>${l.acceptedBy}</strong></p>` : ''}
+      <div class="card-footer-row">
+        <span class="meals-count">🥗 ~${l.mealsEstimate} meals estimated</span>
+        <span class="time-ago">${timeAgo(l.timestamp)}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════════════════
+   5. STAT RENDERING — override from script.js
+════════════════════════════════════════════════════ */
+function renderRestaurantStats() {
+  const listings    = getListings().filter(l => l.restaurant === 'My Restaurant');
+  const totalMeals  = listings.reduce((s, l) => s + (l.mealsEstimate || 0), 0);
+  const completed   = listings.filter(l => l.status === 'completed').length;
+  const pending     = listings.filter(l => l.status === 'pending').length;
+  const accepted    = listings.filter(l => l.status === 'accepted').length;
+
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+
+  // Sidebar stats
+  set('statMeals',    totalMeals);
+  set('statPending',  pending);
+  set('statCompleted',completed);
+
+  // Top stat cards
+  set('statMeals2',   totalMeals);
+  set('statPending2', pending);
+  set('statCompleted2', completed);
+  set('statAccepted', accepted);
+
+  // Impact section
+  set('impactMeals',     totalMeals);
+  set('impactListings',  listings.length);
+  set('impactCompleted', completed);
+  set('impactPending',   pending);
+}
+
+/* ════════════════════════════════════════════════════
+   6. LISTINGS RENDER — override so it uses
+      renderFilteredListings instead of old function
+════════════════════════════════════════════════════ */
+function renderMyListings() {
+  renderFilteredListings('all');
+  // Reset filter tabs to "All"
+  document.querySelectorAll('.tab-btn[data-filter]').forEach(b =>
+    b.classList.toggle('tab-active', b.dataset.filter === 'all')
+  );
+}
+
+/* ════════════════════════════════════════════════════
+   7. SESSION: show logged-in restaurant name if set
+════════════════════════════════════════════════════ */
+(function loadSession() {
+  try {
+    const session = JSON.parse(localStorage.getItem('nf_session') || 'null');
+    if (session && session.role === 'restaurant' && session.restaurantName) {
+      const name = session.restaurantName;
+      const el1 = document.getElementById('sidebarProfileName');
+      const el2 = document.getElementById('mobProfileName');
+      if (el1) el1.textContent = name;
+      if (el2) el2.textContent = name;
+    }
+  } catch (_) {}
+})();
+</script>
+
+</body>
+</html>

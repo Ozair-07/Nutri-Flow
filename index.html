@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriFlow – Feed More. Waste Less.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --g-dark:#2f5d50; --g-mid:#3d6e61; --g-light:#4f7c6e;
+      --g-pale:#e8f2ef; --g-xpale:#f3f9f7;
+      --accent:#c8963a; --txt:#1a2e28; --txt-mid:#3d5a52; --txt-lt:#6b8c84;
+      --sh-sm:0 2px 10px rgba(47,93,80,.09);
+      --sh-md:0 6px 28px rgba(47,93,80,.13);
+      --sh-lg:0 12px 48px rgba(47,93,80,.20);
+      --r:14px; --r-lg:22px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Poppins',sans-serif;color:var(--txt);background:#fff;-webkit-font-smoothing:antialiased;}
+
+    /* NAVBAR */
+    #navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 0;transition:background .35s,box-shadow .35s,padding .35s;}
+    #navbar.scrolled{background:rgba(255,255,255,.97)!important;box-shadow:0 2px 20px rgba(47,93,80,.1);padding:.6rem 0;}
+    .nav-inner{max-width:1180px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;text-decoration:none;}
+    .nav-logo img{height:46px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.2));transition:filter .3s;}
+    #navbar.scrolled .nav-logo img{filter:none;}
+    .nav-links{display:flex;align-items:center;gap:2rem;}
+    .nav-link{font-size:.88rem;font-weight:500;color:rgba(255,255,255,.9);text-decoration:none;position:relative;transition:color .2s;}
+    #navbar.scrolled .nav-link{color:var(--txt-mid);}
+    .nav-link::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:2px;background:var(--accent);transition:width .25s;}
+    .nav-link:hover::after{width:100%;}
+    .btn-login-nav{background:var(--accent);color:#fff!important;padding:.5rem 1.5rem;border-radius:50px;font-size:.85rem;font-weight:700;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;display:inline-block;white-space:nowrap;}
+    .btn-login-nav:hover{background:#b5832f;transform:translateY(-1px);box-shadow:0 6px 18px rgba(200,150,58,.38);}
+    .mob-btn{display:none;background:none;border:none;cursor:pointer;padding:.3rem;}
+    @media(max-width:820px){.nav-links{display:none;}.mob-btn{display:block;}.nav-links.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(18,45,35,.97);backdrop-filter:blur(12px);padding:1.5rem 2rem 2rem;gap:1.2rem;align-items:flex-start;}.nav-link{color:rgba(255,255,255,.85)!important;font-size:1rem;}}
+
+    /* HERO */
+    .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+    .hero-bg{position:absolute;inset:0;background:url('assets/hero-bg.webp') center center/cover no-repeat;transform:scale(1.06);animation:kz 20s ease-in-out infinite alternate;}
+    @keyframes kz{from{transform:scale(1.06);}to{transform:scale(1.13);}}
+    .hero-ov{position:absolute;inset:0;background:linear-gradient(125deg,rgba(10,34,26,.90) 0%,rgba(25,62,48,.78) 55%,rgba(18,52,40,.62) 100%);}
+    .hero-content{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:9rem 2rem 5rem;width:100%;}
+    .hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(200,150,58,.22);border:1px solid rgba(200,150,58,.45);color:#fde68a;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:.35rem 1rem;border-radius:50px;margin-bottom:1.5rem;backdrop-filter:blur(4px);}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,6vw,4.8rem);font-weight:800;color:#fff;line-height:1.1;letter-spacing:-.025em;margin-bottom:1.3rem;}
+    .hero-title em{font-style:normal;color:#86efac;}
+    .hero-sub{font-size:clamp(.95rem,1.8vw,1.18rem);color:rgba(255,255,255,.78);max-width:580px;line-height:1.75;margin-bottom:2.5rem;font-weight:300;}
+    .hero-btns{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:3.5rem;}
+    .btn-p{background:var(--g-dark);color:#fff;padding:.9rem 2.3rem;border-radius:50px;font-weight:700;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.55rem;transition:all .25s;border:2px solid var(--g-dark);}
+    .btn-p:hover{background:var(--g-mid);border-color:var(--g-mid);transform:translateY(-2px);box-shadow:0 10px 32px rgba(47,93,80,.38);}
+    .btn-s{background:transparent;color:#fff;padding:.9rem 2.3rem;border-radius:50px;font-weight:600;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.55rem;border:2px solid rgba(255,255,255,.55);transition:all .25s;}
+    .btn-s:hover{border-color:#fff;background:rgba(255,255,255,.1);transform:translateY(-2px);}
+    .hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;padding-top:2.5rem;border-top:1px solid rgba(255,255,255,.15);}
+    .hs-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:#86efac;line-height:1;}
+    .hs-lbl{font-size:.7rem;color:rgba(255,255,255,.58);margin-top:.25rem;letter-spacing:.07em;text-transform:uppercase;}
+    .scroll-ind{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:.3rem;color:rgba(255,255,255,.45);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;animation:bop 2.5s ease-in-out infinite;}
+    @keyframes bop{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
+
+    /* MARQUEE */
+    .marquee-wrap{overflow:hidden;background:var(--g-dark);padding:1rem 0;}
+    .marquee-track{display:flex;gap:2.8rem;width:max-content;animation:mq 24s linear infinite;}
+    @keyframes mq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+    .marquee-track:hover{animation-play-state:paused;}
+    .mq-item{display:flex;align-items:center;gap:.6rem;color:rgba(255,255,255,.72);font-size:.78rem;font-weight:500;white-space:nowrap;}
+    .mq-dot{width:5px;height:5px;border-radius:50%;background:#86efac;flex-shrink:0;}
+
+    /* SECTION */
+    .sec-tag{display:inline-block;background:var(--g-pale);color:var(--g-dark);font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:.28rem .9rem;border-radius:50px;margin-bottom:.9rem;}
+    .sec-title{font-family:'Playfair Display',serif;font-size:clamp(1.75rem,3.5vw,2.75rem);font-weight:700;color:var(--txt);line-height:1.2;letter-spacing:-.015em;}
+    .sec-sub{font-size:1rem;color:var(--txt-lt);line-height:1.75;font-weight:300;}
+    .py-sec{padding:6rem 0;}
+    .container{max-width:1180px;margin:0 auto;padding:0 2rem;}
+    @media(max-width:640px){.py-sec{padding:4rem 0;}.container{padding:0 1.2rem;}}
+
+    /* STEPS */
+    .step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;}
+    @media(max-width:768px){.step-grid{grid-template-columns:1fr;}}
+    .step-card{background:#fff;border:1px solid #daeae4;border-radius:var(--r-lg);padding:2.4rem 2rem;text-align:center;position:relative;box-shadow:var(--sh-sm);transition:transform .28s,box-shadow .28s;}
+    .step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g-dark),#86efac);border-radius:var(--r-lg) var(--r-lg) 0 0;}
+    .step-card:hover{transform:translateY(-7px);box-shadow:var(--sh-lg);}
+    .step-n{position:absolute;top:1.2rem;right:1.4rem;width:26px;height:26px;border-radius:50%;background:var(--g-dark);color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+    .step-icon{font-size:3.2rem;margin-bottom:1.2rem;display:inline-block;transition:transform .3s;}
+    .step-card:hover .step-icon{transform:scale(1.12) rotate(-3deg);}
+
+    /* SLIDE STRIP */
+    .slide-strip{overflow:hidden;background:var(--g-xpale);padding:2.5rem 0;}
+    .slide-track{display:flex;gap:1rem;width:max-content;animation:sl 34s linear infinite;}
+    @keyframes sl{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+    .slide-track:hover{animation-play-state:paused;}
+    .slide-item{width:240px;height:170px;border-radius:var(--r);overflow:hidden;flex-shrink:0;box-shadow:var(--sh-sm);}
+    .slide-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+    .slide-item:hover img{transform:scale(1.07);}
+
+    /* IMPACT BAR */
+    .impact-bar{background:linear-gradient(120deg,var(--g-dark) 0%,#1e4035 100%);position:relative;overflow:hidden;}
+    .impact-bar::after{content:'';position:absolute;top:-100px;right:-80px;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.04);}
+    .imp-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+    @media(max-width:700px){.imp-grid{grid-template-columns:repeat(2,1fr);}}
+    .imp-cell{text-align:center;padding:3rem 1rem;position:relative;}
+    .imp-cell+.imp-cell::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:1px;background:rgba(255,255,255,.12);}
+    .imp-num{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,4vw,3.5rem);font-weight:800;color:#86efac;line-height:1;}
+    .imp-lbl{font-size:.88rem;color:rgba(255,255,255,.65);margin-top:.4rem;font-weight:300;}
+
+    /* ABOUT */
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+    @media(max-width:768px){.about-grid{grid-template-columns:1fr;gap:2.5rem;}}
+    .about-img{border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-lg);position:relative;}
+    .about-img img{width:100%;height:390px;object-fit:cover;display:block;}
+    .about-float{position:absolute;bottom:-1.5rem;right:-1.5rem;background:#fff;border-radius:var(--r);padding:1rem 1.4rem;box-shadow:var(--sh-md);display:flex;align-items:center;gap:.9rem;}
+    @media(max-width:768px){.about-float{display:none;}}
+    .check-list{list-style:none;margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem;}
+    .check-list li{display:flex;align-items:flex-start;gap:.75rem;font-size:.88rem;color:var(--txt-mid);line-height:1.5;}
+    .check-list .ck{font-size:.75rem;font-weight:800;color:var(--g-dark);width:20px;height:20px;background:var(--g-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem;}
+
+    /* PHOTO GRID */
+    .photo-grid{display:grid;grid-template-columns:1.9fr 1fr 1fr;grid-template-rows:260px 260px;gap:.9rem;}
+    @media(max-width:900px){.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}}
+    @media(max-width:480px){.photo-grid{grid-template-columns:1fr;}}
+    .pg{position:relative;overflow:hidden;border-radius:var(--r);cursor:pointer;}
+    .pg:first-child{grid-row:span 2;}
+    .pg img{width:100%;height:100%;object-fit:cover;transition:transform .6s;}
+    .pg:hover img{transform:scale(1.07);}
+    .pg-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,46,34,.65) 0%,transparent 55%);opacity:0;transition:opacity .35s;display:flex;align-items:flex-end;padding:1.1rem;}
+    .pg:hover .pg-ov{opacity:1;}
+    .pg-cap{color:#fff;font-size:.78rem;font-weight:600;}
+
+    /* STORIES */
+    .story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    @media(max-width:900px){.story-grid{grid-template-columns:1fr;}}
+    .story-card{background:#fff;border:1px solid #daeae4;border-radius:var(--r-lg);padding:2rem;box-shadow:var(--sh-sm);transition:transform .25s,box-shadow .25s;}
+    .story-card:hover{transform:translateY(-5px);box-shadow:var(--sh-md);}
+
+    /* FAQ */
+    .faq-wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:.8rem;}
+    details.faq{background:#fff;border:1.5px solid #daeae4;border-radius:var(--r);overflow:hidden;transition:box-shadow .2s;}
+    details.faq[open]{box-shadow:var(--sh-sm);border-color:var(--g-light);}
+    details.faq summary{cursor:pointer;padding:1.3rem 1.5rem;font-weight:600;font-size:.9rem;color:var(--txt);display:flex;justify-content:space-between;align-items:center;list-style:none;user-select:none;transition:background .2s;}
+    details.faq summary:hover{background:var(--g-xpale);}
+    
+    details.faq summary::-webkit-details-marker{display:none;}
+    details.faq summary::after{content:'+';font-size:1.5rem;font-weight:300;color:var(--g-dark);transition:transform .25s;flex-shrink:0;margin-left:1rem;line-height:1;}
+    details.faq[open] summary::after{transform:rotate(45deg);}
+    .faq-body{padding:0 1.5rem 1.3rem;font-size:.87rem;color:var(--txt-lt);line-height:1.8;}
+
+    /* CTA */
+    .cta-sec{background:linear-gradient(135deg,var(--g-dark) 0%,#1e4035 100%);position:relative;overflow:hidden;}
+    .cta-sec::before{content:'';position:absolute;top:-120px;left:-80px;width:500px;height:500px;border-radius:50%;background:rgba(255,255,255,.03);}
+    .btn-cta-r{background:var(--accent);color:#fff;padding:1rem 2.5rem;border-radius:50px;font-weight:700;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.55rem;transition:all .25s;}
+    .btn-cta-r:hover{background:#b5832f;transform:translateY(-2px);box-shadow:0 10px 30px rgba(200,150,58,.38);}
+    .btn-cta-n{background:rgba(255,255,255,.12);color:#fff;padding:1rem 2.5rem;border-radius:50px;font-weight:700;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.55rem;border:2px solid rgba(255,255,255,.35);transition:all .25s;backdrop-filter:blur(4px);}
+    .btn-cta-n:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.7);transform:translateY(-2px);}
+
+    /* FOOTER */
+    footer{background:#0e2420;color:rgba(255,255,255,.6);}
+    .ft-link{display:block;color:rgba(255,255,255,.52);text-decoration:none;font-size:.87rem;margin-bottom:.55rem;transition:color .2s;}
+    .ft-link:hover{color:#86efac;}
+    .ft-head{color:#fff;font-weight:700;font-size:.92rem;margin-bottom:1rem;}
+    .social-a{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.09);display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);text-decoration:none;font-size:.8rem;transition:all .2s;}
+    .social-a:hover{background:var(--g-light);color:#fff;transform:translateY(-2px);}
+    .partner-item{background:var(--g-xpale);border-radius:10px;padding:.75rem 1.8rem;font-size:.8rem;font-weight:700;color:var(--g-mid);letter-spacing:.04em;border:1px solid #d4e8e2;}
+
+    /* REVEAL ANIMATION */
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
+    .reveal.in{opacity:1;transform:none;}
+    .rd1{transition-delay:.1s;} .rd2{transition-delay:.22s;} .rd3{transition-delay:.34s;}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.png" alt="NutriFlow" />
+    </a>
+
+    <div class="nav-links" id="navLinks">
+      <a href="#home"   class="nav-link">Home</a>
+      <a href="#how"    class="nav-link">How It Works</a>
+      <a href="#about"  class="nav-link">About</a>
+      <a href="#impact" class="nav-link">Impact</a>
+      <a href="#faq"    class="nav-link">FAQ</a>
+      <a href="login.html" class="btn-login-nav">Login / Register →</a>
+    </div>
+
+    <button class="mob-btn" id="mobBtn" aria-label="Toggle menu">
+      <svg id="mobIcon" width="26" height="20" viewBox="0 0 26 20" fill="none">
+        <rect y="0"  width="26" height="2.5" rx="1.25" fill="white"/>
+        <rect y="9"  width="26" height="2.5" rx="1.25" fill="white"/>
+        <rect y="18" width="26" height="2.5" rx="1.25" fill="white"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HERO ══════════════════════════ -->
+<section id="home" class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ov"></div>
+
+  <div class="hero-content">
+    <div style="max-width:680px;">
+      <div class="hero-tag">🌍 &nbsp;Zero Hunger Initiative · India</div>
+
+      <h1 class="hero-title">
+        Connecting extra food<br/>
+        to <em>people in need</em>
+      </h1>
+
+      <p class="hero-sub">
+        NutriFlow bridges the gap between restaurants with surplus food and NGOs fighting
+        hunger — ensuring every meal counts before it goes to waste.
+      </p>
+      <p style="color:#86efac;font-size:1.1rem;font-weight:600;font-style:italic;margin-bottom:2.5rem;font-family:'Playfair Display',serif;">
+        "Feed more. Waste less."
+      </p>
+
+      <div class="hero-btns">
+        <a href="login.html" class="btn-p">Get Started &nbsp;→</a>
+        <a href="#how"       class="btn-s">▶ &nbsp;See How It Works</a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hs-num" data-count="500" data-suffix="+">0</div>
+          <div class="hs-lbl">Meals Saved</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.18);align-self:stretch;"></div>
+        <div>
+          <div class="hs-num" data-count="50" data-suffix="+">0</div>
+          <div class="hs-lbl">Restaurants</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.18);align-self:stretch;"></div>
+        <div>
+          <div class="hs-num" data-count="30" data-suffix="+">0</div>
+          <div class="hs-lbl">NGO Partners</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.18);align-self:stretch;"></div>
+        <div>
+          <div class="hs-num" data-count="8">0</div>
+          <div class="hs-lbl">Cities</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-ind">
+    <span>Scroll</span>
+    <svg width="14" height="22" viewBox="0 0 14 22"><rect x="5.5" y="1" width="3" height="8" rx="1.5" fill="rgba(255,255,255,.5)"/><path d="M1 14l6 7 6-7" stroke="rgba(255,255,255,.4)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════ MARQUEE ═══════════════════════ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="mq-item"><div class="mq-dot"></div>500+ Meals Saved</div>
+    <div class="mq-item"><div class="mq-dot"></div>Zero Food Waste</div>
+    <div class="mq-item"><div class="mq-dot"></div>50+ Restaurant Partners</div>
+    <div class="mq-item"><div class="mq-dot"></div>30+ Verified NGOs</div>
+    <div class="mq-item"><div class="mq-dot"></div>8 Cities in India</div>
+    <div class="mq-item"><div class="mq-dot"></div>Real-time Notifications</div>
+    <div class="mq-item"><div class="mq-dot"></div>Transparent Impact Reports</div>
+    <div class="mq-item"><div class="mq-dot"></div>Completely Free to Join</div>
+    <div class="mq-item"><div class="mq-dot"></div>Verified Partners Only</div>
+    <div class="mq-item"><div class="mq-dot"></div>500+ Meals Saved</div>
+    <div class="mq-item"><div class="mq-dot"></div>Zero Food Waste</div>
+    <div class="mq-item"><div class="mq-dot"></div>50+ Restaurant Partners</div>
+    <div class="mq-item"><div class="mq-dot"></div>30+ Verified NGOs</div>
+    <div class="mq-item"><div class="mq-dot"></div>8 Cities in India</div>
+    <div class="mq-item"><div class="mq-dot"></div>Real-time Notifications</div>
+    <div class="mq-item"><div class="mq-dot"></div>Transparent Impact Reports</div>
+    <div class="mq-item"><div class="mq-dot"></div>Completely Free to Join</div>
+    <div class="mq-item"><div class="mq-dot"></div>Verified Partners Only</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ABOUT ═════════════════════════ -->
+<section id="about" class="py-sec" style="background:#fff;">
+  <div class="container">
+    <div class="about-grid">
+
+      <div style="position:relative;" class="reveal">
+        <div class="about-img">
+          <img src="assets/gallery-3.webp" alt="Children smiling after receiving food" />
+        </div>
+        <div class="about-float">
+          <div style="font-size:2.2rem;">🏆</div>
+          <div>
+            <div style="font-weight:800;font-size:.95rem;color:var(--txt);">500+ Meals Saved</div>
+            <div style="font-size:.72rem;color:var(--txt-lt);margin-top:.1rem;">Across 8 cities in India</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal rd1">
+        <span class="sec-tag">Our Mission</span>
+        <h2 class="sec-title" style="margin-top:.2rem;margin-bottom:1.1rem;">
+          Fighting hunger,<br/>one plate at a time
+        </h2>
+        <p class="sec-sub" style="margin-bottom:1rem;">
+          In India, millions of tonnes of edible food are wasted every year — while millions
+          of children go to bed hungry. NutriFlow was built to fix this disconnect.
+        </p>
+        <p class="sec-sub">
+          We're a free, non-profit platform connecting restaurants and food businesses with
+          verified NGOs and community kitchens — ensuring surplus food reaches those who need
+          it most, before it's ever wasted.
+        </p>
+
+        <ul class="check-list">
+          <li><span class="ck">✓</span>Zero-waste approach – every listing tracked to completion</li>
+          <li><span class="ck">✓</span>Only government-verified NGOs can accept food listings</li>
+          <li><span class="ck">✓</span>Restaurants get real-time impact reports on every donation</li>
+          <li><span class="ck">✓</span>100% free for all partners – no commissions, ever</li>
+        </ul>
+
+        <a href="login.html" style="display:inline-flex;align-items:center;gap:.55rem;margin-top:2rem;background:var(--g-dark);color:#fff;padding:.85rem 2.1rem;border-radius:50px;font-weight:700;font-size:.9rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='#3d6e61';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--g-dark)';this.style.transform='none'">
+          Join the Movement →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ HOW IT WORKS ══════════════════ -->
+<section id="how" class="py-sec" style="background:var(--g-xpale);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:4rem;" class="reveal">
+      <span class="sec-tag">The Process</span>
+      <h2 class="sec-title" style="margin-top:.3rem;">How NutriFlow Works</h2>
+      <p class="sec-sub" style="max-width:500px;margin:.9rem auto 0;">
+        A simple three-step loop that turns surplus food into smiles — every single day.
+      </p>
+    </div>
+
+    <div class="step-grid">
+      <div class="step-card reveal">
+        <span class="step-n">1</span>
+        <div class="step-icon">🍛</div>
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--txt);margin-bottom:.7rem;">Restaurants Upload Extra Food</h3>
+        <p style="font-size:.85rem;color:var(--txt-lt);line-height:1.75;">
+          Restaurants list surplus meals with quantity, food type, pickup location, and expiry time.
+          Listing takes under 2 minutes through a simple form.
+        </p>
+      </div>
+      <div class="step-card reveal rd1">
+        <span class="step-n">2</span>
+        <div class="step-icon">🔔</div>
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--txt);margin-bottom:.7rem;">NGOs Receive Notifications</h3>
+        <p style="font-size:.85rem;color:var(--txt-lt);line-height:1.75;">
+          Registered NGOs are instantly notified of food nearby. They can browse by distance,
+          quantity, and urgency — then accept with one tap.
+        </p>
+      </div>
+      <div class="step-card reveal rd2">
+        <span class="step-n">3</span>
+        <div class="step-icon">🤝</div>
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--txt);margin-bottom:.7rem;">Food is Collected & Distributed</h3>
+        <p style="font-size:.85rem;color:var(--txt-lt);line-height:1.75;">
+          NGOs coordinate pickup, distribute to communities in need, and mark completion —
+          generating real impact reports for every partner.
+        </p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:3.5rem;" class="reveal">
+      <p style="font-size:.88rem;color:var(--txt-lt);margin-bottom:1.2rem;">Ready to be part of the solution?</p>
+      <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;">
+        <a href="login.html" style="background:var(--g-dark);color:#fff;padding:.8rem 2rem;border-radius:50px;font-weight:700;font-size:.88rem;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all .25s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">🍽️ Join as Restaurant</a>
+        <a href="login.html" style="background:#fff;color:var(--g-dark);padding:.8rem 2rem;border-radius:50px;font-weight:700;font-size:.88rem;text-decoration:none;border:2px solid var(--g-dark);display:inline-flex;align-items:center;gap:.5rem;transition:all .25s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">🤝 Join as NGO</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ AUTO SCROLL STRIP ══════════════ -->
+<div class="slide-strip">
+  <div class="slide-track">
+    <div class="slide-item"><img src="assets/gallery-1.webp" alt="Children eating" /></div>
+    <div class="slide-item"><img src="assets/gallery-2.webp" alt="Girl with roti" /></div>
+    <div class="slide-item"><img src="assets/gallery-3.webp" alt="Smiling children" /></div>
+    <div class="slide-item"><img src="assets/gallery-4.webp" alt="Children at school" /></div>
+    <div class="slide-item"><img src="assets/gallery-5.png" alt="Happy children" /></div>
+    <div class="slide-item"><img src="assets/hero-bg.webp"   alt="Food distribution" /></div>
+    <div class="slide-item"><img src="assets/gallery-1.webp" alt="Children eating" /></div>
+    <div class="slide-item"><img src="assets/gallery-2.webp" alt="Girl with roti" /></div>
+    <div class="slide-item"><img src="assets/gallery-3.webp" alt="Smiling children" /></div>
+    <div class="slide-item"><img src="assets/gallery-4.webp" alt="Children at school" /></div>
+    <div class="slide-item"><img src="assets/gallery-5.png" alt="Happy children" /></div>
+    <div class="slide-item"><img src="assets/hero-bg.webp"   alt="Food distribution" /></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ IMPACT BAR ════════════════════ -->
+<section id="impact" class="impact-bar">
+  <div class="container">
+    <div class="imp-grid">
+      <div class="imp-cell reveal">
+        <div class="imp-num" data-count="500" data-suffix="+">0</div>
+        <div class="imp-lbl">Meals Saved</div>
+      </div>
+      <div class="imp-cell reveal rd1">
+        <div class="imp-num" data-count="50" data-suffix="+">0</div>
+        <div class="imp-lbl">Partner Restaurants</div>
+      </div>
+      <div class="imp-cell reveal rd2">
+        <div class="imp-num" data-count="30" data-suffix="+">0</div>
+        <div class="imp-lbl">Verified NGOs</div>
+      </div>
+      <div class="imp-cell reveal rd3">
+        <div class="imp-num" data-count="8">0</div>
+        <div class="imp-lbl">Cities Covered</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ GALLERY ═══════════════════════ -->
+<section class="py-sec" style="background:#fff;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3.5rem;" class="reveal">
+      <span class="sec-tag">Stories on Ground</span>
+      <h2 class="sec-title" style="margin-top:.3rem;">The faces behind every meal</h2>
+      <p class="sec-sub" style="max-width:480px;margin:.9rem auto 0;">
+        Real children, real communities — every photo is a reminder of why this work matters.
+      </p>
+    </div>
+
+    <div class="photo-grid reveal">
+      <div class="pg">
+        <img src="assets/hero-bg.webp" alt="Children holding bowls waiting for food" loading="lazy" />
+        <div class="pg-ov"><span class="pg-cap">Children awaiting food – Delhi</span></div>
+      </div>
+      <div class="pg">
+        <img src="assets/gallery-3.webp" alt="Smiling children after meal" loading="lazy" />
+        <div class="pg-ov"><span class="pg-cap">After a good meal – joy</span></div>
+      </div>
+      <div class="pg">
+        <img src="assets/gallery-5.png" alt="Happy village children" loading="lazy" />
+        <div class="pg-ov"><span class="pg-cap">Happy & fed – Rajasthan</span></div>
+      </div>
+      <div class="pg">
+        <img src="assets/gallery-4.webp" alt="School children eating" loading="lazy" />
+        <div class="pg-ov"><span class="pg-cap">Mid-day meal at school</span></div>
+      </div>
+      <div class="pg">
+        <img src="assets/gallery-1.webp" alt="Children eating watermelon" loading="lazy" />
+        <div class="pg-ov"><span class="pg-cap">Sharing a meal together</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ PARTNERS ══════════════════════ -->
+<section style="background:var(--g-xpale);padding:3rem 0;">
+  <div class="container">
+    <p style="text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--txt-lt);margin-bottom:2rem;" class="reveal">
+      Trusted by partners across India
+    </p>
+    <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1.2rem;" class="reveal">
+      <div class="partner-item">🍴 Green Garden Restaurant</div>
+      <div class="partner-item">🤝 Hope Foundation</div>
+      <div class="partner-item">🍛 Spice Route Cafe</div>
+      <div class="partner-item">❤️ Smile Foundation</div>
+      <div class="partner-item">🌿 Biryani House</div>
+      <div class="partner-item">🏠 Goonj NGO</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ STORIES ═══════════════════════ -->
+<section class="py-sec" style="background:#fff;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3.5rem;" class="reveal">
+      <span class="sec-tag">Voices of Change</span>
+      <h2 class="sec-title" style="margin-top:.3rem;">What our partners say</h2>
+    </div>
+
+    <div class="story-grid">
+      <div class="story-card reveal">
+        <div style="font-size:2.8rem;color:var(--g-pale);line-height:1;margin-bottom:.5rem;">"</div>
+        <p style="font-size:.87rem;color:var(--txt-mid);line-height:1.75;font-style:italic;">
+          Before NutriFlow, we used to throw away 15–20 kg of food every evening. Now
+          it reaches families within an hour. The dashboard is incredibly easy to use.
+        </p>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-top:1.4rem;">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--g-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🧑‍🍳</div>
+          <div>
+            <div style="font-weight:700;font-size:.87rem;color:var(--txt);">Ramesh Agarwal</div>
+            <div style="font-size:.72rem;color:var(--txt-lt);">Owner, Green Garden Restaurant · Delhi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-card reveal rd1">
+        <div style="font-size:2.8rem;color:var(--g-pale);line-height:1;margin-bottom:.5rem;">"</div>
+        <p style="font-size:.87rem;color:var(--txt-mid);line-height:1.75;font-style:italic;">
+          We used to spend hours calling restaurants to collect food. NutriFlow automated
+          everything — now we just open the app and the food is waiting for us nearby.
+        </p>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-top:1.4rem;">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--g-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🤝</div>
+          <div>
+            <div style="font-weight:700;font-size:.87rem;color:var(--txt);">Priya Sharma</div>
+            <div style="font-size:.72rem;color:var(--txt-lt);">Coordinator, Hope Foundation · Mumbai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-card reveal rd2">
+        <div style="font-size:2.8rem;color:var(--g-pale);line-height:1;margin-bottom:.5rem;">"</div>
+        <p style="font-size:.87rem;color:var(--txt-mid);line-height:1.75;font-style:italic;">
+          The impact counter is the best motivation. Seeing "You've helped serve 200 meals"
+          keeps my whole team inspired to contribute more every single day.
+        </p>
+        <div style="display:flex;align-items:center;gap:.8rem;margin-top:1.4rem;">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--g-pale);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🍽️</div>
+          <div>
+            <div style="font-weight:700;font-size:.87rem;color:var(--txt);">Kavita Nair</div>
+            <div style="font-size:.72rem;color:var(--txt-lt);">Manager, Spice Route Cafe · Bangalore</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FAQ ════════════════════════════ -->
+<section id="faq" class="py-sec" style="background:var(--g-xpale);">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3.5rem;" class="reveal">
+      <span class="sec-tag">FAQ</span>
+      <h2 class="sec-title" style="margin-top:.3rem;">Frequently Asked Questions</h2>
+      <p class="sec-sub" style="max-width:480px;margin:.9rem auto 0;">
+        Everything you need to know about joining and using NutriFlow.
+      </p>
+    </div>
+
+    <div class="faq-wrap">
+      <details class="faq reveal"><summary>What is NutriFlow and how does it work?</summary>
+        <div class="faq-body">NutriFlow is a free, non-profit platform that connects restaurants and food businesses with verified NGOs who can collect and distribute surplus food to people in need. Restaurants post a listing, NGOs accept it, pick it up, and distribute it — all tracked in real time through our dashboards.</div>
+      </details>
+
+      <details class="faq reveal"><summary>Is NutriFlow completely free to use?</summary>
+        <div class="faq-body">Yes — 100% free for everyone. We are a non-profit initiative. There are no subscription fees, no commissions, and no hidden charges for restaurants or NGOs, now or ever.</div>
+      </details>
+
+      <details class="faq reveal"><summary>How do I register as a restaurant partner?</summary>
+        <div class="faq-body">Click "Login / Register" at the top right and choose "Join as Restaurant." Fill in your basic details and start listing surplus food immediately. Our team reviews new partners within 24 hours and you'll receive a Verified badge upon approval.</div>
+      </details>
+
+      <details class="faq reveal"><summary>What types of food can be listed on NutriFlow?</summary>
+        <div class="faq-body">Any safe, edible food with a remaining shelf life of at least 2 hours — including cooked meals, packaged food, fresh produce, bakery items, dairy, and beverages. All listings must meet basic food safety hygiene standards.</div>
+      </details>
+
+      <details class="faq reveal"><summary>How are NGOs verified on the platform?</summary>
+        <div class="faq-body">All NGOs undergo a verification process where we check government registration certificates, past work history, and point-of-contact details. Verified NGOs are shown with a blue ✅ Verified badge on their profile and dashboard.</div>
+      </details>
+
+      <details class="faq reveal"><summary>Can I track the impact of my donations as a restaurant?</summary>
+        <div class="faq-body">Absolutely! Your restaurant dashboard includes a live impact counter showing meals saved through your listings. You also receive notifications when an NGO accepts your food and when pickup is completed, along with monthly impact reports.</div>
+      </details>
+
+      <details class="faq reveal"><summary>What if an NGO doesn't pick up listed food in time?</summary>
+        <div class="faq-body">If a listing is approaching expiry without being accepted, NutriFlow sends urgent notifications to nearby NGOs and flags it as "Expiring Soon" 🔥. Restaurants can also contact our support team for emergency pickup coordination.</div>
+      </details>
+
+      <details class="faq reveal"><summary>Which cities is NutriFlow currently active in?</summary>
+        <div class="faq-body">Currently active in Delhi, Mumbai, Bangalore, Chennai, Hyderabad, Pune, Kolkata, and Jaipur. We are expanding rapidly — contact us if your city is not listed and we will work to onboard partners in your area.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CTA ════════════════════════════ -->
+<section class="cta-sec py-sec">
+  <div class="container" style="text-align:center;position:relative;z-index:2;">
+    <span class="sec-tag" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);">
+      Join the Movement
+    </span>
+    <h2 class="sec-title reveal" style="color:#fff;margin-top:.4rem;margin-bottom:1rem;">
+      Every meal saved is<br/>a life touched
+    </h2>
+    <p class="sec-sub reveal" style="color:rgba(255,255,255,.7);max-width:520px;margin:0 auto 2.8rem;">
+      Whether you run a restaurant with extra food, or an NGO serving communities in need
+      — NutriFlow connects you. Join for free today.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:1.2rem;justify-content:center;" class="reveal">
+      <a href="login.html" class="btn-cta-r">🍽️ &nbsp;Join as Restaurant</a>
+      <a href="login.html" class="btn-cta-n">🤝 &nbsp;Join as NGO</a>
+    </div>
+    <div style="margin-top:4rem;opacity:.2;">
+      <img src="assets/logo.png" alt="NutriFlow" style="height:52px;margin:0 auto;filter:brightness(20);" />
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ════════════════════════ -->
+<footer style="padding:5rem 0 2.5rem;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3.5rem;" id="ftGrid">
+
+      <div>
+        <div style="margin-bottom:1.2rem;">
+          <img src="assets/logo.png" alt="NutriFlow" style="height:42px;filter:brightness(10);opacity:.85;" />
+        </div>
+        <p style="font-size:.84rem;line-height:1.75;color:rgba(255,255,255,.45);max-width:260px;margin-bottom:1.5rem;">
+          A non-profit technology platform connecting surplus food with communities in need —
+          one meal at a time, across India.
+        </p>
+        <div style="display:flex;gap:.6rem;">
+          <a href="#" class="social-a">𝕏</a>
+          <a href="#" class="social-a">in</a>
+          <a href="#" class="social-a">f</a>
+          <a href="#" class="social-a">📷</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="ft-head">Platform</div>
+        <a href="#how"       class="ft-link">How It Works</a>
+        <a href="#about"     class="ft-link">About Us</a>
+        <a href="#faq"       class="ft-link">FAQ</a>
+        <a href="login.html" class="ft-link">Login / Register</a>
+      </div>
+
+      <div>
+        <div class="ft-head">Dashboards</div>
+        <a href="restaurant.html" class="ft-link">Restaurant Portal</a>
+        <a href="ngo.html"        class="ft-link">NGO Portal</a>
+        <a href="#"               class="ft-link">Partner With Us</a>
+        <a href="#"               class="ft-link">Volunteer</a>
+      </div>
+
+      <div>
+        <div class="ft-head">Contact</div>
+        <a href="mailto:hello@nutriflow.org" class="ft-link">📧 hello@nutriflow.org</a>
+        <a href="tel:+919876543210"          class="ft-link">📞 +91 98765 43210</a>
+        <p class="ft-link">📍 New Delhi, India</p>
+        <p style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.6rem;">Mon–Sat, 9 AM – 7 PM IST</p>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:2rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;">
+      <p style="font-size:.77rem;color:rgba(255,255,255,.28);">© 2025 NutriFlow. Built with ❤️ to end hunger in India.</p>
+      <div style="display:flex;gap:1.8rem;">
+        <a href="#" class="ft-link" style="margin:0;font-size:.77rem;">Privacy Policy</a>
+        <a href="#" class="ft-link" style="margin:0;font-size:.77rem;">Terms of Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  @media(max-width:768px){#ftGrid{grid-template-columns:1fr 1fr!important;}}
+  @media(max-width:480px){#ftGrid{grid-template-columns:1fr!important;}}
+</style>
+
+<script>
+  /* Navbar scroll */
+  const nav=document.getElementById('navbar');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60));
+
+  /* Mobile menu */
+  document.getElementById('mobBtn').addEventListener('click',()=>{
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+  document.querySelectorAll('#navLinks a').forEach(a=>a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
+
+  /* Scroll reveal */
+  const ro=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target);}});},{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+  /* Animated counters */
+  const co=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,t=parseInt(el.dataset.count),s=el.dataset.suffix||'';let c=0,step=Math.max(1,Math.ceil(t/55));const tm=setInterval(()=>{c=Math.min(c+step,t);el.textContent=c+s;if(c>=t)clearInterval(tm);},22);co.unobserve(el);});},{threshold:0.5});
+  document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
+
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}}));
+</script>
+
+</body>
+</html>
